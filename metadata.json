@@ -1,0 +1,6 @@
+{
+  "name": "Smartflow Trading",
+  "description": "Interactive multi-page trading educational platform with Gold, Bitcoin, and Forex setups, indicators, study material, and an offline strategy backtest simulator.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
