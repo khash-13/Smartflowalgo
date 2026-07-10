@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Check, X, ShieldAlert, Sparkles, HelpCircle } from "lucide-react";
+import { Check, X, Sparkles } from "lucide-react";
 import { plans, comparisonTable, Plan } from "../data/plans";
 import CurrencyToggle from "./CurrencyToggle";
 
@@ -77,7 +77,7 @@ export default function PricingCards({
       </div>
 
       {/* Grid of Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {plans.map((plan) => {
           const isPopular = plan.popular;
           return (

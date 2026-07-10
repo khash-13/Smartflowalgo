@@ -431,7 +431,7 @@ export default function Simulator() {
                 <select
                   value={market}
                   onChange={(e) => setMarket(e.target.value)}
-                  className="w-full text-xs font-semibold px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full text-xs font-semibold px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   id="sim-input-market"
                 >
                   <option value="Gold Demo">Gold (XAU/USD) Demo Preset</option>
@@ -475,7 +475,7 @@ export default function Simulator() {
                 <select
                   value={settings.strategyName}
                   onChange={(e) => setSettings({ ...settings, strategyName: e.target.value })}
-                  className="w-full text-xs font-semibold px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full text-xs font-semibold px-3 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   id="sim-input-strategy"
                 >
                   <option value="EMA Crossover">EMA Crossover (Trend Follow)</option>
@@ -580,7 +580,7 @@ export default function Simulator() {
                       type="number"
                       value={settings.emaFast}
                       onChange={(e) => setSettings({ ...settings, emaFast: Math.max(2, parseInt(e.target.value) || 0) })}
-                      className="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded text-slate-800 dark:text-slate-200 focus:outline-none"
+                      className="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-slate-800 dark:text-slate-200 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -589,7 +589,7 @@ export default function Simulator() {
                       type="number"
                       value={settings.emaSlow}
                       onChange={(e) => setSettings({ ...settings, emaSlow: Math.max(5, parseInt(e.target.value) || 0) })}
-                      className="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded text-slate-800 dark:text-slate-200 focus:outline-none"
+                      className="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-slate-800 dark:text-slate-200 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -598,7 +598,7 @@ export default function Simulator() {
                       type="number"
                       value={settings.rsiLength}
                       onChange={(e) => setSettings({ ...settings, rsiLength: Math.max(2, parseInt(e.target.value) || 0) })}
-                      className="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded text-slate-800 dark:text-slate-200 focus:outline-none"
+                      className="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-slate-800 dark:text-slate-200 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -608,7 +608,7 @@ export default function Simulator() {
                       step="0.1"
                       value={settings.atrMultiplier}
                       onChange={(e) => setSettings({ ...settings, atrMultiplier: Math.max(0.5, parseFloat(e.target.value) || 0) })}
-                      className="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded text-slate-800 dark:text-slate-200 focus:outline-none"
+                      className="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-slate-800 dark:text-slate-200 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -794,7 +794,7 @@ export default function Simulator() {
                 {/* Win/Loss Breakdown */}
                 <div className="space-y-3">
                   <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Win / Loss Breakdown</span>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-850 space-y-3">
+                  <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 space-y-3">
                     <div className="flex justify-between items-baseline">
                       <span className="text-[10px] text-slate-500 font-medium">Total Trades</span>
                       <span className="text-2xl font-black text-slate-800 dark:text-white">{metrics.totalTrades}</span>
@@ -842,7 +842,7 @@ export default function Simulator() {
                 {/* Financial Performance */}
                 <div className="space-y-3">
                   <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Financial Performance</span>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-850 space-y-2.5">
+                  <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2.5">
                     <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
                       <span className="text-[10px] text-slate-500 font-semibold">Total Profit/Loss</span>
                       <span className={`font-mono text-base font-bold ${metrics.netPnl >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
@@ -879,7 +879,7 @@ export default function Simulator() {
                 {/* Risk and Efficiency Stats */}
                 <div className="space-y-3">
                   <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Risk & Efficiency Stats</span>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-850 space-y-2.5">
+                  <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2.5">
                     <div className="flex justify-between items-center text-[10px] text-slate-500 font-medium">
                       <span>Max Drawdown</span>
                       <span className="font-mono text-rose-500 font-bold">-{metrics.maxDrawdown}%</span>
@@ -906,7 +906,7 @@ export default function Simulator() {
                 {/* Capital Growth Curve Sparkline */}
                 <div className="space-y-3">
                   <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Capital Growth Curve</span>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-850 space-y-2.5 h-[178px] flex flex-col justify-between">
+                  <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2.5 h-[178px] flex flex-col justify-between">
                     {equityCurve.length > 0 ? (
                       <div className="space-y-2 flex-1 flex flex-col justify-between">
                         <div className="relative flex-1 min-h-[90px] w-full">
@@ -993,10 +993,10 @@ export default function Simulator() {
           )}
 
           {/* Interactive Custom SVG Chart */}
-          <div className="bg-slate-950 border border-slate-850 rounded-2xl overflow-hidden shadow-lg">
+          <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
             
             {/* Chart Info Header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-850 text-slate-400 text-xs font-semibold bg-slate-900/60">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800 text-slate-400 text-xs font-semibold bg-slate-900/60">
               <div className="flex items-center gap-2">
                 <span className="text-white font-bold">{market}</span>
                 <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px]">{timeframe} Timeframe</span>
@@ -1609,7 +1609,7 @@ export default function Simulator() {
 
             {/* Slider / Scrolling Timeline Controls */}
             {candles.length > 0 && (
-              <div className="p-4 bg-slate-900 border-t border-slate-850 flex items-center gap-4 text-xs text-slate-400">
+              <div className="p-4 bg-slate-900 border-t border-slate-800 flex items-center gap-4 text-xs text-slate-400">
                 <span className="shrink-0">Timeline Slider</span>
                 <input
                   type="range"
@@ -1667,7 +1667,7 @@ export default function Simulator() {
                   </div>
 
                   {equityCurve.length > 0 ? (
-                    <div className="bg-slate-900 rounded-xl p-4 border border-slate-850">
+                    <div className="bg-slate-900 rounded-xl p-4 border border-slate-800">
                       <svg viewBox="0 0 500 150" width="100%" height="150" className="overflow-visible">
                         {/* Grid lines */}
                         {[0.25, 0.5, 0.75, 1.0].map((ratio, idx) => {
@@ -1744,10 +1744,10 @@ export default function Simulator() {
                   </div>
 
                   {trades.length > 0 ? (
-                    <div className="overflow-x-auto border border-slate-100 dark:border-slate-850 rounded-xl">
+                    <div className="overflow-x-auto border border-slate-100 dark:border-slate-800 rounded-xl">
                       <table className="w-full text-left text-[11px] leading-normal font-mono">
                         <thead>
-                          <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-850 text-slate-500 font-bold uppercase tracking-wider">
+                          <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
                             <th className="p-3">ID</th>
                             <th className="p-3">Date/Time</th>
                             <th className="p-3">Market</th>
@@ -1816,7 +1816,7 @@ export default function Simulator() {
                     <span>Systematic Trading Formula</span>
                   </div>
                   
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-850">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                     {getStrategyPlainEnglish()}
                   </p>
 

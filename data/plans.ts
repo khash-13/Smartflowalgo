@@ -32,23 +32,6 @@ export const plans: Plan[] = [
     ]
   },
   {
-    id: "starter",
-    name: "Starter",
-    pricing: {
-      USD: { price: 19, period: "month" },
-      GBP: { price: 15, period: "month" },
-      INR: { price: 1799, period: "month" }
-    },
-    features: [
-      "Beginner trading roadmap",
-      "Free resources",
-      "Study material library",
-      "Basic simulator access",
-      "Risk templates",
-      "Weekly market-flow notes"
-    ]
-  },
-  {
     id: "pro-signals",
     name: "Pro Signals & Indicators",
     popular: true,
@@ -65,24 +48,6 @@ export const plans: Plan[] = [
       "Advanced simulator settings",
       "Strategy worksheets",
       "Priority Telegram updates"
-    ]
-  },
-  {
-    id: "algo-edge",
-    name: "Algo Edge",
-    pricing: {
-      USD: { price: 99, period: "month" },
-      GBP: { price: 79, period: "month" },
-      INR: { price: 9499, period: "month" }
-    },
-    features: [
-      "Everything in Pro Signals",
-      "Algo simulator access",
-      "Strategy builder templates",
-      "Trade log analytics",
-      "Demo-data backtest reports",
-      "Risk and position sizing module",
-      "Custom rule builder"
     ]
   },
   {

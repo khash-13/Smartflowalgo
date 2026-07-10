@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import Header from "@/components/Header";
 import "./globals.css";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,7 +16,8 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Smartflow Trading | Gold, BTC & Forex Systematic Education",
-  description: "Learn market-flow structure, follow educational setups, study risk-management guides, and run backtests inside the interactive sandbox.",
+  description:
+    "Learn market-flow structure, follow educational setups, study risk-management guides, and run backtests inside the interactive sandbox.",
 };
 
 export default function RootLayout({
@@ -24,10 +27,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body suppressHydrationWarning className="antialiased min-h-screen">
+      <body suppressHydrationWarning className="antialiased min-h-screen dark:bg-gray-950 bg-white">
+        <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );
 }
-

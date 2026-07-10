@@ -1,23 +1,22 @@
+"use client";
+
 import React from "react";
 import Logo from "./Logo";
 import { Send, Mail, Phone, Calendar, ShieldAlert } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-interface FooterProps {
-  id?: string;
-  onPageChange: (page: string) => void;
-}
 
-export default function Footer({ id = "app-footer", onPageChange }: FooterProps) {
+export default function Footer() {
   const currentYear = new Date().getFullYear();
-
+  const router = useRouter()
   return (
-    <footer id={id} className="bg-slate-50 dark:bg-black border-t border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+    <footer className="bg-slate-50 dark:bg-black border-t border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
       {/* Top Main Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
         {/* Brand Column */}
         <div className="space-y-4">
           <button
-            onClick={() => onPageChange("home")}
+            onClick={() => router.push("home")}
             className="focus:outline-none text-left cursor-pointer hover:opacity-90 transition-opacity"
             id="ftr-logo-btn"
           >
@@ -53,22 +52,22 @@ export default function Footer({ id = "app-footer", onPageChange }: FooterProps)
           <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Trading Tools</h4>
           <ul className="space-y-2.5 text-xs">
             <li>
-              <button onClick={() => onPageChange("simulator")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-simulator">
+              <button onClick={() => router.push("simulator")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-simulator">
                 Strategy Simulator
               </button>
             </li>
             <li>
-              <button onClick={() => onPageChange("indicators")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-indicators">
+              <button onClick={() => router.push("indicators")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-indicators">
                 Educational Indicators
               </button>
             </li>
             <li>
-              <button onClick={() => onPageChange("plans")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-plans">
+              <button onClick={() => router.push("plans")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-plans">
                 Subscription Plans
               </button>
             </li>
             <li>
-              <button onClick={() => onPageChange("resources")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-resources">
+              <button onClick={() => router.push("resources")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-resources">
                 Free Downloadable Resources
               </button>
             </li>
@@ -80,22 +79,17 @@ export default function Footer({ id = "app-footer", onPageChange }: FooterProps)
           <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Education & Support</h4>
           <ul className="space-y-2.5 text-xs">
             <li>
-              <button onClick={() => onPageChange("study")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-study">
+              <button onClick={() => router.push("study")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-study">
                 Study Material Center
               </button>
             </li>
             <li>
-              <button onClick={() => onPageChange("blogs")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-blogs">
-                Smartflow Trading Blog
-              </button>
-            </li>
-            <li>
-              <button onClick={() => onPageChange("about")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-about">
+              <button onClick={() => router.push("about")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-about">
                 About Smartflow Trading
               </button>
             </li>
             <li>
-              <button onClick={() => onPageChange("contact")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-contact">
+              <button onClick={() => router.push("contact")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-contact">
                 Contact Support Desk
               </button>
             </li>
@@ -143,13 +137,13 @@ export default function Footer({ id = "app-footer", onPageChange }: FooterProps)
           </div>
           
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <button onClick={() => onPageChange("privacy")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-legal-privacy">
+            <button onClick={() => router.push("privacy")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-legal-privacy">
               Privacy Policy
             </button>
-            <button onClick={() => onPageChange("terms")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-legal-terms">
+            <button onClick={() => router.push("terms")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-legal-terms">
               Terms & Conditions
             </button>
-            <button onClick={() => onPageChange("disclaimer")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-legal-disclaimer">
+            <button onClick={() => router.push("disclaimer")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-legal-disclaimer">
               Risk Disclaimer Statement
             </button>
           </div>
