@@ -1,4 +1,4 @@
-import SimulatorPage from '@/pages/main/Simulator'
+import SimulatorPage from '@/sections/main/Simulator'
 import React from 'react'
 
 function page() {

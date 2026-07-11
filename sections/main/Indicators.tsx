@@ -1,6 +1,8 @@
+"use client";
+
 import { indicatorsData } from "@/data/indicators";
 import React from "react";
-import { IndicatorCard } from "../other/IndicatorsCard";
+import IndicatorCard from "../other/IndicatorsCard";
 
 function Indicators() {
   return (

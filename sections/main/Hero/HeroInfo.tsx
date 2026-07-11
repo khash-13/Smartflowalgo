@@ -96,7 +96,7 @@ export function AnimatedGradientText({
       }}
       className="overflow-hidden"
     >
-      <span className="inline-block uppercase bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 bg-clip-text text-transparent">
+      <span className="inline-block uppercase bg-gradient-to-r from-blue-400 via-sky-600 to-blue-800 bg-clip-text text-transparent">
         {text}
       </span>
     </motion.div>

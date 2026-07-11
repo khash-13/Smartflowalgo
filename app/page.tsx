@@ -37,7 +37,7 @@ import TelegramCTA from "../components/TelegramCTA";
 // Data
 import { blogPosts } from "../data/blogs";
 import { plans } from "../data/plans";
-import Home from "@/pages/main/Home";
+import Home from "@/sections/main/Home";
 
 export default function Page() {
 

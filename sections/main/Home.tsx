@@ -11,6 +11,7 @@ import FreePlanBanner from "../other/PricingBanner";
 import TickerTape from "../other/TradingView";
 import LogoMarquee from "../other/Marquee";
 import { images } from "@/data/marquee";
+import GoldIndicatorAbout from "../other/About";
 
 function Home() {
   return (
@@ -23,6 +24,7 @@ function Home() {
       />
       <TickerTape />
       </div>
+      <GoldIndicatorAbout />
       <FreePlanBanner />
       <PricingBanner />
       {/* <Pricing /> */}

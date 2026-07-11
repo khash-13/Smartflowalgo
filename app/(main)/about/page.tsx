@@ -1,4 +1,4 @@
-import About from '@/pages/main/About'
+import About from '@/sections/main/About'
 import React from 'react'
 
 function page() {

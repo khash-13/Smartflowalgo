@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import Header from "@/components/Header";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import CookieConsent from "@/sections/other/Cookie";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,6 +32,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
+        <CookieConsent />
       </body>
     </html>
   );

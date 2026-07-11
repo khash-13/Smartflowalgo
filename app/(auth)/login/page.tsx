@@ -1,4 +1,4 @@
-import Login from '@/pages/auth/Login'
+import Login from '@/sections/auth/Login'
 import React from 'react'
 
 function page() {

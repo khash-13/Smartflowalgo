@@ -58,7 +58,7 @@ export default function LogoMarquee({
       >
         {items.map((logo, index) => (
           <div
-            key={`${logo.src}-${index}`}
+            key={`${index}`}
             className="flex shrink-0 items-center justify-center"
             style={{
               marginRight: gap,

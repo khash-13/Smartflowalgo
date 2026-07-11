@@ -1,6 +1,6 @@
-import Pricing from '@/pages/main/Pricing'
-import PricingBanner from '@/pages/other/HorizontalPricing'
-import FreePlanBanner from '@/pages/other/PricingBanner'
+import Pricing from '@/sections/main/Pricing'
+import PricingBanner from '@/sections/other/HorizontalPricing'
+import FreePlanBanner from '@/sections/other/PricingBanner'
 import React from 'react'
 
 function page() {

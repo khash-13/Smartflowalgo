@@ -75,7 +75,7 @@ const cardVariants: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
 };
 
-export function IndicatorCard({ ind, index }: { ind: Indicator; index: number }) {
+export default function IndicatorCard({ ind, index }: { ind: Indicator; index: number }) {
   const accent = ACCENTS[hashStr(ind.name) % ACCENTS.length];
   const Icon = resolveIcon(ind.name);
   const isOscillator = /rsi|stoch|macd|momentum/i.test(ind.name);
@@ -99,7 +99,7 @@ export function IndicatorCard({ ind, index }: { ind: Indicator; index: number })
         }}
       >
         {ind.image ? (
-          <img src={ind.image} alt={ind.name} className="h-full w-full rounded-lg object-cover" />
+          <img src={ind.image} alt={"name of card"} className="h-full w-full rounded-lg object-cover" />
         ) : (
           <>
             {/* faint grid */}

@@ -1,4 +1,4 @@
-import Indicators from '@/pages/main/Indicators'
+import Indicators from '@/sections/main/Indicators'
 import React from 'react'
 
 function page() {

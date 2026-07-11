@@ -1,4 +1,4 @@
-import Rigester from '@/pages/auth/Rigester'
+import Rigester from '@/sections/auth/Rigester'
 import React from 'react'
 
 function page() {
