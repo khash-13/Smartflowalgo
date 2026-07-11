@@ -12,7 +12,7 @@ import {
   Star,
 } from "lucide-react";
 
-const PRICE = 49;
+const PRICE = 30;
 
 const FEATURES = [
   {
@@ -26,7 +26,7 @@ const FEATURES = [
     icon: GraduationCap,
     title: "Full Course Library",
     desc: "Every strategy module included",
-    value: 49,
+    value: 30,
   },
   {
     icon: Video,
@@ -82,13 +82,13 @@ const itemVariants: Variants = {
 
 export default function PricingBanner() {
   return (
-    <div className="relative rounded-[1.75rem] bg-gradient-to-r from-blue-600/40 via-blue-400/15 to-blue-600/40 p-px dark:from-blue-500/40 dark:via-blue-400/10 dark:to-blue-500/40">
+    <div className="relative rounded-[1.75rem] sm:mx-12 mx-0 bg-gradient-to-r from-blue-600/40 via-blue-400/15 to-blue-600/40 p-px dark:from-blue-500/40 dark:via-blue-400/10 dark:to-blue-500/40">
       <motion.section
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-80px" }}
         variants={containerVariants}
-        className="relative overflow-hidden rounded-[1.7rem] border border-slate-200/70 bg-white dark:border-white/5 dark:bg-zinc-950"
+        className="relative overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-white dark:border-white/5 dark:bg-zinc-950"
       >
         {/* dot-grid texture */}
         <div className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.25] [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_65%)] [background-image:radial-gradient(circle,theme(colors.blue.500)_1px,transparent_1px)] [background-size:22px_22px]" />

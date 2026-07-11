@@ -13,12 +13,12 @@ const navItems = [
   // { label: "Blogs", page: "blogs" },
   { label: "Indicators", page: "indicators" },
   // { label: "Study Material", page: "study" },
-  { label: "Simulator", page: "simulator" },
+  // { label: "Simulator", page: "simulator" },
   { label: "About", page: "about" },
   { label: "Contact", page: "contact" },
 ];
 
-type theme = "light" | "dark"
+type theme = "light" | "dark";
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activePage, setActivePage] = useState(navItems[0].page);
@@ -69,7 +69,7 @@ export default function Header() {
             className="focus:outline-none transition-transform hover:scale-[1.01] active:scale-95 cursor-pointer text-left"
             id="hdr-logo-btn"
           >
-            <Logo className="h-10 w-auto" />
+            <Logo className="h-20 mb-4 w-auto" />
           </button>
 
           {/* Desktop Navigation */}
@@ -103,14 +103,41 @@ export default function Header() {
 
             {/* Telegram CTA */}
             <a
+              href="https://www.instagram.com/smartflowalgo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center group gap-1.5 px-3 py-2 text-sm font-semibold uppercase rounded-lg border border-pink-500 hover:text-white  hover:bg-pink-500 text-pink-400 transition-all shrink-0 cursor-pointer  tracking-tight"
+              id="hdr-join-tg-btn"
+            >
+              <div className="w-5 h-5 text-pink-500 group-hover:text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 256 256"
+                >
+                  <path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm40,152a40,40,0,0,1-40,40H80a40,40,0,0,1-40-40V80A40,40,0,0,1,80,40h96a40,40,0,0,1,40,40ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"></path>
+                </svg>
+              </div>
+              Follow
+            </a>
+
+            <a
               href="https://t.me/smartflowalgo"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-lg border border-blue-500 hover:text-white  hover:bg-blue-500 text-blue-400 transition-all shrink-0 cursor-pointer uppercase tracking-wider"
+              className="flex items-center group gap-1.5 px-4 py-2.5 text-xs font-bold rounded-lg border border-sky-500 hover:text-white  hover:bg-sky-500 text-sky-400 transition-all shrink-0 cursor-pointer uppercase tracking-wider"
               id="hdr-join-tg-btn"
             >
-              <Send className="h-3.5 w-3.5" />
-              Join Free Telegram
+              <div className="w-4 h-4 text-sky-500 group-hover:text-white">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+                >
+                <path d="M228.88,26.19a9,9,0,0,0-9.16-1.57L17.06,103.93a14.22,14.22,0,0,0,2.43,27.21L72,141.45V200a15.92,15.92,0,0,0,10,14.83,15.91,15.91,0,0,0,17.51-3.73l25.32-26.26L165,220a15.88,15.88,0,0,0,10.51,4,16.3,16.3,0,0,0,5-.79,15.85,15.85,0,0,0,10.67-11.63L231.77,35A9,9,0,0,0,228.88,26.19Zm-61.14,36L78.15,126.35l-49.6-9.73ZM88,200V152.52l24.79,21.74Zm87.53,8L92.85,135.5l119-85.29Z"></path>
+              </svg>
+                </div>
+                Join
             </a>
 
             {/* Get Started Button */}

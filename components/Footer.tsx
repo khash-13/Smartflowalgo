@@ -2,13 +2,12 @@
 
 import React from "react";
 import Logo from "./Logo";
-import { Send, Mail, Phone, Calendar, ShieldAlert } from "lucide-react";
+import { Send, Mail, Phone, Calendar, ShieldAlert, Instagram } from "lucide-react";
 import { useRouter } from "next/navigation";
-
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const router = useRouter()
+  const router = useRouter();
   return (
     <footer className="bg-slate-50 dark:bg-black border-t border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
       {/* Top Main Section */}
@@ -22,9 +21,11 @@ export default function Footer() {
           >
             <Logo className="h-9 w-auto" />
           </button>
-          
+
           <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-            SMARTFLOWALGO by Smartflow Trading helps learners follow Gold, BTC, and Forex market analysis, educational signal breakdowns, indicators, risk management, and simulated strategy practice.
+            SMARTFLOWALGO by Smartflow Trading helps learners follow Gold, BTC,
+            and Forex market analysis, educational signal breakdowns,
+            indicators, risk management, and simulated strategy practice.
           </p>
 
           <div className="flex flex-col space-y-2 pt-2 text-xs">
@@ -37,6 +38,15 @@ export default function Footer() {
               <Send className="h-4 w-4 text-blue-500" />
               <span>t.me/smartflowalgo</span>
             </a>
+
+            <a
+              href="https://www.instagram.com/smartflowalgo"
+              className="flex items-center gap-2 hover:text-blue-500 transition-colors"
+            >
+              <Instagram className="h-4 w-4 text-pink-400" />
+              <span>Smartflowalgo</span>
+            </a>
+
             <a
               href="mailto:support@smartflowalgo.com"
               className="flex items-center gap-2 hover:text-blue-500 transition-colors"
@@ -49,26 +59,26 @@ export default function Footer() {
 
         {/* Navigation Column 1 */}
         <div className="space-y-4">
-          <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Trading Tools</h4>
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+            Trading Tools
+          </h4>
           <ul className="space-y-2.5 text-xs">
             <li>
-              <button onClick={() => router.push("simulator")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-simulator">
-                Strategy Simulator
-              </button>
-            </li>
-            <li>
-              <button onClick={() => router.push("indicators")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-indicators">
+              <button
+                onClick={() => router.push("indicators")}
+                className="hover:text-blue-500 transition-colors cursor-pointer"
+                id="ftr-link-indicators"
+              >
                 Educational Indicators
               </button>
             </li>
             <li>
-              <button onClick={() => router.push("plans")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-plans">
+              <button
+                onClick={() => router.push("plans")}
+                className="hover:text-blue-500 transition-colors cursor-pointer"
+                id="ftr-link-plans"
+              >
                 Subscription Plans
-              </button>
-            </li>
-            <li>
-              <button onClick={() => router.push("resources")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-resources">
-                Free Downloadable Resources
               </button>
             </li>
           </ul>
@@ -76,20 +86,25 @@ export default function Footer() {
 
         {/* Navigation Column 2 */}
         <div className="space-y-4">
-          <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Education & Support</h4>
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+            Education & Support
+          </h4>
           <ul className="space-y-2.5 text-xs">
             <li>
-              <button onClick={() => router.push("study")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-study">
-                Study Material Center
-              </button>
-            </li>
-            <li>
-              <button onClick={() => router.push("about")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-about">
+              <button
+                onClick={() => router.push("about")}
+                className="hover:text-blue-500 transition-colors cursor-pointer"
+                id="ftr-link-about"
+              >
                 About Smartflow Trading
               </button>
             </li>
             <li>
-              <button onClick={() => router.push("contact")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-link-contact">
+              <button
+                onClick={() => router.push("contact")}
+                className="hover:text-blue-500 transition-colors cursor-pointer"
+                id="ftr-link-contact"
+              >
                 Contact Support Desk
               </button>
             </li>
@@ -98,7 +113,9 @@ export default function Footer() {
 
         {/* Hours Column */}
         <div className="space-y-4">
-          <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Business Info</h4>
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+            Business Info
+          </h4>
           <ul className="space-y-2.5 text-xs">
             <li className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-emerald-500 shrink-0" />
@@ -123,7 +140,20 @@ export default function Footer() {
           <div className="flex items-start gap-2">
             <ShieldAlert className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
             <p>
-              <strong>IMPORTANT COMPLIANCE NOTICE & RISK WARNING:</strong> SMARTFLOWALGO provides educational market analysis, signal ideas, indicators, and simulated trading tools. We do not provide financial advice, broker execution, portfolio management, or guaranteed trading outcomes. Trading Gold, cryptocurrency, Forex, CFDs, and other leveraged financial instruments involves substantial risk of capital loss and may not be suitable for all investors. Before trading with real capital, you should thoroughly educate yourself, test strategies in risk-free environments, and understand the statistical probability distribution of losses. Never invest money you cannot afford to lose. All simulator runs operate purely on synthetic, demo data or user-uploaded historical text records with zero real-world clearing, and do not reflect real market conditions or live transaction fees.
+              <strong>IMPORTANT COMPLIANCE NOTICE & RISK WARNING:</strong>{" "}
+              SMARTFLOWALGO provides educational market analysis, signal ideas,
+              indicators, and simulated trading tools. We do not provide
+              financial advice, broker execution, portfolio management, or
+              guaranteed trading outcomes. Trading Gold, cryptocurrency, Forex,
+              CFDs, and other leveraged financial instruments involves
+              substantial risk of capital loss and may not be suitable for all
+              investors. Before trading with real capital, you should thoroughly
+              educate yourself, test strategies in risk-free environments, and
+              understand the statistical probability distribution of losses.
+              Never invest money you cannot afford to lose. All simulator runs
+              operate purely on synthetic, demo data or user-uploaded historical
+              text records with zero real-world clearing, and do not reflect
+              real market conditions or live transaction fees.
             </p>
           </div>
         </div>
@@ -133,17 +163,30 @@ export default function Footer() {
       <div className="border-t border-slate-200 dark:border-slate-800 py-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
           <div>
-            &copy; {currentYear} SMARTFLOWALGO by Smartflow Trading. All rights reserved.
+            &copy; {currentYear} SMARTFLOWALGO by Smartflow Trading. All rights
+            reserved.
           </div>
-          
+
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <button onClick={() => router.push("privacy")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-legal-privacy">
+            <button
+              onClick={() => router.push("privacy")}
+              className="hover:text-blue-500 transition-colors cursor-pointer"
+              id="ftr-legal-privacy"
+            >
               Privacy Policy
             </button>
-            <button onClick={() => router.push("terms")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-legal-terms">
+            <button
+              onClick={() => router.push("terms")}
+              className="hover:text-blue-500 transition-colors cursor-pointer"
+              id="ftr-legal-terms"
+            >
               Terms & Conditions
             </button>
-            <button onClick={() => router.push("disclaimer")} className="hover:text-blue-500 transition-colors cursor-pointer" id="ftr-legal-disclaimer">
+            <button
+              onClick={() => router.push("disclaimer")}
+              className="hover:text-blue-500 transition-colors cursor-pointer"
+              id="ftr-legal-disclaimer"
+            >
               Risk Disclaimer Statement
             </button>
           </div>
