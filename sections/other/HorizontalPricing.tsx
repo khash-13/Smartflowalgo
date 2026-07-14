@@ -1,5 +1,6 @@
 "use client";
 
+import { getToken } from "@/lib/plan-token";
 import { motion, type Variants } from "framer-motion";
 import {
   TrendingUp,
@@ -11,6 +12,7 @@ import {
   ArrowRight,
   Star,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const PRICE = 30;
 
@@ -81,6 +83,12 @@ const itemVariants: Variants = {
 };
 
 export default function PricingBanner() {
+    const router = useRouter()
+  
+    function goToCheckout() {
+      const tok = getToken("PAID", PRICE, "monthly");
+      router.push(`/checkout?plan=${tok}`)
+    }
   return (
     <div className="relative rounded-[1.75rem] sm:mx-12 mx-0 bg-gradient-to-r from-blue-600/40 via-blue-400/15 to-blue-600/40 p-px dark:from-blue-500/40 dark:via-blue-400/10 dark:to-blue-500/40">
       <motion.section
@@ -164,6 +172,7 @@ export default function PricingBanner() {
 
             <motion.div variants={itemVariants} className="flex flex-col gap-3">
               <button
+              onClick={goToCheckout}
                 type="button"
                 className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:bg-blue-700 hover:shadow-blue-600/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950 sm:w-fit"
               >

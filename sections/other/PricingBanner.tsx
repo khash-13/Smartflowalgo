@@ -14,6 +14,8 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import { getToken } from "@/lib/plan-token";
+import { useRouter } from "next/navigation";
 
 // TODO: replace with your real Telegram invite link
 const TELEGRAM_URL = "#";
@@ -75,9 +77,12 @@ function CountUp({ to, className }: { to: number; className?: string }) {
 }
 
 export default function FreePlanBanner() {
-  const claimedPercent = Math.round((SPOTS_CLAIMED / TOTAL_SPOTS) * 100);
-  const remaining = TOTAL_SPOTS - SPOTS_CLAIMED;
+  const router = useRouter()
 
+  function goToCheckout() {
+    const tok = getToken("FREE")
+    router.push(`/checkout?plan=${tok}`)
+  }
   return (
     <div className="relative rounded-[1.75rem] sm:mx-12 mx-0 bg-gradient-to-r from-sky-500/40 via-cyan-400/15 to-sky-600/40 p-px dark:from-sky-400/40 dark:via-cyan-400/10 dark:to-sky-500/40">
       <motion.section
@@ -141,10 +146,8 @@ export default function FreePlanBanner() {
 
             <div className="hidden h-10 w-px bg-slate-200 dark:bg-white/10 sm:block" />
 
-            <motion.a
-              href={TELEGRAM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <motion.button 
+              onClick={goToCheckout}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 px-7 py-3.5 font-semibold text-white shadow-lg shadow-sky-500/25 transition-shadow hover:shadow-sky-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
@@ -155,7 +158,7 @@ export default function FreePlanBanner() {
                 Join Telegram Free
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
-            </motion.a>
+            </motion.button>
           </motion.div>
 
           <motion.span variants={itemVariants} className="text-xs text-slate-400 dark:text-slate-500">
@@ -236,17 +239,15 @@ export default function FreePlanBanner() {
 
 
 
-          <motion.a
-            href={TELEGRAM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <motion.button
+            onClick={goToCheckout}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-sky-600/20 bg-white px-4 py-2 text-xs font-bold text-sky-600 shadow-sm transition-colors hover:bg-sky-600/5 dark:border-sky-400/20 dark:bg-transparent dark:text-sky-400 dark:hover:bg-sky-400/5"
           >
             <Send className="h-3.5 w-3.5" />
             Join Now
-          </motion.a>
+          </motion.button>
         </motion.div>
       </motion.section>
     </div>

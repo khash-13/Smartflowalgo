@@ -1,5 +1,6 @@
 "use client"
 
+import { getToken } from '@/lib/plan-token';
 import { CheckCircle, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
@@ -17,6 +18,10 @@ function Rigester() {
       const [registerSubmitted, setRegisterSubmitted] = useState(false);
       
       const router = useRouter()
+        function goToCheckout() {
+          const tok = getToken("FREE")
+          router.push(`/checkout?plan=${tok}`)
+        }
   return (
               <section
             className="max-w-md mx-auto px-4 py-12 md:py-20 text-left"
@@ -174,14 +179,12 @@ function Rigester() {
                       </span>
                       <p className="text-slate-500 mt-0.5">
                         Avoid subscription checks altogether:{" "}
-                        <a
-                          href="https://t.me/smartflowalgo"
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button 
+                          onClick={goToCheckout}
                           className="text-blue-500 font-bold hover:underline"
                         >
                           Join the Telegram community
-                        </a>{" "}
+                        </button>{" "}
                         for free setup updates!
                       </p>
                     </div>

@@ -5,6 +5,7 @@ import { Menu, X, Send, LogIn, ChevronRight, Sparkles } from "lucide-react";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 import { useRouter } from "next/navigation";
+import { getToken } from "@/lib/plan-token";
 
 const navItems = [
   { label: "Home", page: "/" },
@@ -43,6 +44,11 @@ export default function Header() {
     setActivePage(page);
     setMobileMenuOpen(false);
   };
+ 
+  function goToCheckout() {
+    const tok = getToken("FREE")
+    router.push(`/checkout?plan=${tok}`)
+  }
 
   return (
     <>
@@ -52,14 +58,12 @@ export default function Header() {
           LAUNCH BONUS: Free Premium Telegram Community access for the first 200
           members! Only a few seats remaining.
         </span>
-        <a
-          href="https://t.me/smartflowalgo"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+        onClick={goToCheckout}
           className="underline font-bold hover:text-yellow-100 transition-colors shrink-0"
         >
           Claim Now &rarr;
-        </a>
+        </button>
       </div>
       <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-[#050B1D] backdrop-blur-md transition-colors">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
@@ -121,7 +125,7 @@ export default function Header() {
               Follow
             </a>
 
-            <a
+            {/* <a
               href="https://t.me/smartflowalgo"
               target="_blank"
               rel="noopener noreferrer"
@@ -138,7 +142,7 @@ export default function Header() {
               </svg>
                 </div>
                 Join
-            </a>
+            </a> */}
 
             {/* Get Started Button */}
             <button
@@ -220,16 +224,14 @@ export default function Header() {
                 </button>
               </div>
 
-              <a
-                href="https://t.me/smartflowalgo"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+              onClick={goToCheckout}
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-blue-600 dark:bg-emerald-600 text-white text-xs font-bold shadow-sm uppercase tracking-wider"
                 id="m-hdr-join-tg-btn"
               >
                 <Send className="h-4 w-4" />
                 Join Free Telegram
-              </a>
+              </button>
             </div>
           </div>
         )}

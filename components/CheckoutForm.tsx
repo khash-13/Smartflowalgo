@@ -1,0 +1,363 @@
+"use client";
+
+import { useState, type FormEvent, type InputHTMLAttributes } from "react";
+import { motion } from "framer-motion";
+import { Loader2, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import type { PlanPayload } from "@/lib/plan-token";
+import {
+  checkoutFormSchema,
+  type CheckoutFormValues,
+  type DuplicateField,
+} from "@/lib/checkout";
+
+interface CheckoutFormProps {
+  plan: PlanPayload;
+}
+
+type FieldName = keyof CheckoutFormValues;
+type FieldErrors = Partial<Record<FieldName, string>>;
+
+const EMPTY_FORM: CheckoutFormValues = {
+  name: "",
+  tradingViewId: "",
+  mobile: "",
+  email: "",
+};
+
+const FIELD_LABELS: Record<FieldName, string> = {
+  name: "Name",
+  tradingViewId: "TradingView ID",
+  mobile: "Mobile number",
+  email: "Email address",
+};
+
+// TODO: point these at your real destinations before shipping.
+const TELEGRAM_CHANNEL_URL =
+  process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL ?? "https://t.me/your_channel";
+const PAYMENT_GATEWAY_URL =
+  process.env.NEXT_PUBLIC_PAYMENT_GATEWAY_URL ?? "/api/create-payment-order";
+
+export default function CheckoutForm({ plan }: CheckoutFormProps) {
+  const [form, setForm] = useState<CheckoutFormValues>(EMPTY_FORM);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [checking, setChecking] = useState<Partial<Record<FieldName, boolean>>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const isPaid = plan.type === "PAID";
+
+  function updateField(field: FieldName, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    // Clear a field's error as soon as the user edits it again.
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+    setFormError(null);
+  }
+
+  // Live duplicate check — fires on blur for email / mobile / tradingViewId.
+  async function checkDuplicateOnBlur(field: DuplicateField, rawValue: string) {
+    const value = rawValue.trim();
+    if (!value) return;
+
+    // Only bother the API once the field is at least well-formed enough
+    // to be worth checking — full validation still happens on submit.
+    const singleFieldResult = checkoutFormSchema.shape[field].safeParse(value);
+    if (!singleFieldResult.success) return;
+
+    setChecking((prev) => ({ ...prev, [field]: true }));
+    try {
+      const params = new URLSearchParams({ [field]: value });
+      const res = await fetch(`/api/save-data?${params.toString()}`);
+      const data = await res.json();
+
+      const existsKey = `${field}Exists` as const;
+      if (res.ok && data[existsKey]) {
+        setErrors((prev) => ({
+          ...prev,
+          [field]: `This ${FIELD_LABELS[field].toLowerCase()} is already registered`,
+        }));
+      }
+    } catch {
+      // Silently ignore — the authoritative check happens again on submit.
+    } finally {
+      setChecking((prev) => ({ ...prev, [field]: false }));
+    }
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setFormError(null);
+
+    const result = checkoutFormSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErrors: FieldErrors = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as FieldName;
+        fieldErrors[field] = issue.message;
+      }
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      // Final, authoritative duplicate check right before saving —
+      // covers cases where the user never blurred a field (e.g. paste +
+      // immediate submit) or values changed after the earlier checks.
+      const params = new URLSearchParams({
+        email: result.data.email,
+        mobile: result.data.mobile,
+        tradingViewId: result.data.tradingViewId,
+      });
+      const checkRes = await fetch(`/api/save-data?${params.toString()}`);
+      const checkData = await checkRes.json();
+
+      if (checkRes.ok) {
+        const dupErrors: FieldErrors = {};
+        if (checkData.emailExists) dupErrors.email = "This email is already registered";
+        if (checkData.mobileExists) dupErrors.mobile = "This mobile number is already registered";
+        if (checkData.tradingViewIdExists)
+          dupErrors.tradingViewId = "This TradingView ID is already registered";
+
+        if (Object.keys(dupErrors).length > 0) {
+          setErrors(dupErrors);
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      const saveRes = await fetch("/api/save-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...result.data,
+          planType: plan.type,
+        }),
+      });
+
+      const saveData = await saveRes.json();
+
+      if (!saveRes.ok) {
+        if (saveRes.status === 409 && Array.isArray(saveData.conflicts)) {
+          const dupErrors: FieldErrors = {};
+          for (const field of saveData.conflicts as string[]) {
+            if (field === "email" || field === "mobile" || field === "tradingViewId") {
+              dupErrors[field] = `This ${FIELD_LABELS[field].toLowerCase()} is already registered`;
+            }
+          }
+          setErrors(dupErrors);
+        } else {
+          setFormError(saveData.error ?? "Something went wrong. Please try again.");
+        }
+        setSubmitting(false);
+        return;
+      }
+
+      // Saved successfully — route based on plan type.
+      if (isPaid) {
+        const url = new URL(PAYMENT_GATEWAY_URL, window.location.origin);
+        url.searchParams.set("leadId", saveData.id);
+        window.location.href = url.toString();
+      } else {
+        window.location.href = TELEGRAM_CHANNEL_URL;
+      }
+    } catch {
+      setFormError("Network error — please check your connection and try again.");
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="grid gap-6 lg:grid-cols-[1fr_1.3fr] lg:gap-8"
+    >
+      {/* Order summary */}
+      <div className="order-2 lg:order-1">
+        <div className="sticky top-8 rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm sm:p-8">
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
+              isPaid
+                ? "bg-cyan-500/10 text-cyan-300 ring-1 ring-inset ring-cyan-500/30"
+                : "bg-slate-500/10 text-slate-300 ring-1 ring-inset ring-slate-500/30"
+            }`}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            {isPaid ? "Paid plan" : "Free plan"}
+          </span>
+
+          <h2 className="mt-4 text-2xl font-semibold text-white">{plan.type}</h2>
+
+          {isPaid && typeof plan.price === "number" && (
+            <p className="mt-2 flex items-baseline gap-1 text-white">
+              <span className="text-3xl font-bold">₹{plan.price.toLocaleString("en-IN")}</span>
+              <span className="text-sm text-slate-400">
+                / {plan.billingCycle === "yearly" ? "year" : "month"}
+              </span>
+            </p>
+          )}
+
+          <div className="mt-6 space-y-3 border-t border-white/10 pt-6 text-sm text-slate-400">
+            {isPaid ? (
+              <p>You&apos;ll be redirected to our secure payment gateway after this step.</p>
+            ) : (
+              <p>You&apos;ll get an invite link to our Telegram channel right after this step.</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Form */}
+      <div className="order-1 lg:order-2">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm sm:p-8">
+          <h1 className="text-xl font-semibold text-white">Your details</h1>
+          <p className="mt-1 text-sm text-slate-400">
+            We use this to set up your access — no spam, ever.
+          </p>
+
+          <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-5">
+            <Field
+              label={FIELD_LABELS.name}
+              name="name"
+              value={form.name}
+              onChange={(v) => updateField("name", v)}
+              error={errors.name}
+              placeholder="Adarsh Sharma"
+              autoComplete="name"
+            />
+
+            <Field
+              label={FIELD_LABELS.tradingViewId}
+              name="tradingViewId"
+              value={form.tradingViewId}
+              onChange={(v) => updateField("tradingViewId", v)}
+              onBlur={(v) => checkDuplicateOnBlur("tradingViewId", v)}
+              checking={checking.tradingViewId}
+              error={errors.tradingViewId}
+              placeholder="your_tradingview_username"
+              autoComplete="off"
+            />
+
+            <Field
+              label={FIELD_LABELS.mobile}
+              name="mobile"
+              value={form.mobile}
+              onChange={(v) => updateField("mobile", v)}
+              onBlur={(v) => checkDuplicateOnBlur("mobile", v)}
+              checking={checking.mobile}
+              error={errors.mobile}
+              placeholder="98765 43210"
+              autoComplete="tel"
+              inputMode="numeric"
+            />
+
+            <Field
+              label={FIELD_LABELS.email}
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={(v) => updateField("email", v)}
+              onBlur={(v) => checkDuplicateOnBlur("email", v)}
+              checking={checking.email}
+              error={errors.email}
+              placeholder="you@example.com"
+              autoComplete="email"
+            />
+
+            {formError && (
+              <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{formError}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-400 px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:from-sky-400 hover:to-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : isPaid ? (
+                "Continue to payment"
+              ) : (
+                "Join the Telegram channel"
+              )}
+            </button>
+          </form>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+interface FieldProps {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+  onBlur?: (value: string) => void;
+  error?: string;
+  checking?: boolean;
+  placeholder?: string;
+  type?: string;
+  autoComplete?: string;
+  inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
+}
+
+function Field({
+  label,
+  name,
+  value,
+  onChange,
+  onBlur,
+  error,
+  checking,
+  placeholder,
+  type = "text",
+  autoComplete,
+  inputMode,
+}: FieldProps) {
+  return (
+    <div>
+      <label htmlFor={name} className="mb-1.5 block text-sm font-medium text-slate-300">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          id={name}
+          name={name}
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          inputMode={inputMode}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={(e) => onBlur?.(e.target.value)}
+          aria-invalid={!!error}
+          aria-describedby={error ? `${name}-error` : undefined}
+          className={`w-full rounded-lg border bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 ${
+            error
+              ? "border-red-500/50 focus:ring-red-500/40"
+              : "border-white/10 focus:border-sky-500/50 focus:ring-sky-500/30"
+          }`}
+        />
+        {checking && (
+          <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-500" />
+        )}
+        {!checking && !error && value.trim().length > 0 && (
+          <CheckCircle2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-500/70" />
+        )}
+      </div>
+      {error && (
+        <p id={`${name}-error`} className="mt-1.5 text-xs text-red-400">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}

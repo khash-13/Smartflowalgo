@@ -88,25 +88,6 @@ function Login() {
                     Sign In
                   </button>
 
-                  <div className="relative flex py-2 items-center">
-                    <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-                    <span className="flex-shrink mx-4 text-slate-400 text-[10px] font-bold">
-                      OR
-                    </span>
-                    <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      alert(
-                        "Google Single Sign-On is currently active as a preview placeholder and does not connect to external brokers.",
-                      )
-                    }
-                    className="w-full py-3 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
-                  >
-                    <span>Continue with Google</span>
-                  </button>
                 </form>
               )}
             </div>

@@ -7,3 +7,7 @@ coverage/
 !.env.example
 
 bun.lock
+dist/
+.env
+
+/generated/prisma

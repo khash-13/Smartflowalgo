@@ -1,0 +1,301 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Loader2, Search, ChevronLeft, ChevronRight, ArrowUpDown, RefreshCw, LucideTrash } from "lucide-react";
+
+export interface Lead {
+  id: string;
+  name: string;
+  tradingViewId: string;
+  mobile: string;
+  email: string;
+  planType: "FREE" | "PAID";
+  createdAt: string; // ISO string
+}
+
+interface Pagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+type PlanFilter = "ALL" | "FREE" | "PAID";
+type SortBy = "createdAt" | "name";
+type SortOrder = "asc" | "desc";
+
+interface LeadsTableProps {
+  initialData: Lead[];
+  initialTotal: number;
+  pageSize: number;
+}
+
+export default function LeadsTable({ initialData, initialTotal, pageSize }: LeadsTableProps) {
+  const [leads, setLeads] = useState<Lead[]>(initialData);
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    pageSize,
+    total: initialTotal,
+    totalPages: Math.max(1, Math.ceil(initialTotal / pageSize)),
+  });
+
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [planFilter, setPlanFilter] = useState<PlanFilter>("ALL");
+  const [sortBy, setSortBy] = useState<SortBy>("createdAt");
+  const [order, setOrder] = useState<SortOrder>("desc");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isFirstRun = useRef(true);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounce the search box so we're not firing a request per keystroke.
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => setDebouncedSearch(search.trim()), 350);
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [search]);
+
+  // Reset to page 1 whenever a filter changes.
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, planFilter, sortBy, order]);
+
+  useEffect(() => {
+    // Skip the very first run — the server already gave us page 1 with
+    // default filters, no need to refetch it immediately on mount.
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      return;
+    }
+    fetchLeads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, debouncedSearch, planFilter, sortBy, order]);
+
+  async function fetchLeads() {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        page: String(page),
+        pageSize: String(pageSize),
+        sortBy,
+        order,
+      });
+      if (debouncedSearch) params.set("search", debouncedSearch);
+      if (planFilter !== "ALL") params.set("planType", planFilter);
+
+      const res = await fetch(`/api/save-data?${params.toString()}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error ?? "Failed to load leads");
+        return;
+      }
+
+      setLeads(data.data);
+      setPagination(data.pagination);
+    } catch {
+      setError("Network error — please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function toggleSort(field: SortBy) {
+    if (sortBy === field) {
+      setOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(field);
+      setOrder("desc");
+    }
+  }
+
+  const rangeStart = pagination.total === 0 ? 0 : (pagination.page - 1) * pagination.pageSize + 1;
+  const rangeEnd = Math.min(pagination.page * pagination.pageSize, pagination.total);
+
+  const deleteUser = async (id: string) => {
+    setLoading(true)
+    const del = await fetch(`/api/save-data?id=${id}`, {
+        method: "DELETE"
+    })
+    if (del.ok) {
+        window.location.reload()
+        setLoading(false)
+    }
+  }
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03]">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 border-b border-white/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search name, email, mobile, TradingView ID..."
+            className="w-full rounded-lg border border-white/10 bg-slate-900/60 py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-sky-500/50 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <select
+            value={planFilter}
+            onChange={(e) => setPlanFilter(e.target.value as PlanFilter)}
+            className="rounded-lg border border-white/10 bg-slate-900/60 px-3 py-2 text-sm text-white focus:border-sky-500/50 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+          >
+            <option value="ALL">All plans</option>
+            <option value="FREE">Free</option>
+            <option value="PAID">Paid</option>
+          </select>
+
+          <button
+            onClick={fetchLeads}
+            disabled={loading}
+            title="Refresh"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-slate-900/60 text-slate-300 transition hover:text-white disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="border-b border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-300">
+          {error}
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="relative overflow-x-auto">
+        {loading && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/50 backdrop-blur-[1px]">
+            <Loader2 className="h-6 w-6 animate-spin text-sky-400" />
+          </div>
+        )}
+
+        <table className="w-full min-w-[720px] text-left text-sm">
+          <thead>
+            <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-slate-400">
+              <SortableHeader label="Name" field="name" sortBy={sortBy} order={order} onSort={toggleSort} />
+              <th className="px-4 py-3 font-medium">TradingView ID</th>
+              <th className="px-4 py-3 font-medium">Mobile</th>
+              <th className="px-4 py-3 font-medium">Email</th>
+              <th className="px-4 py-3 font-medium">Plan</th>
+              <SortableHeader
+                label="Joined"
+                field="createdAt"
+                sortBy={sortBy}
+                order={order}
+                onSort={toggleSort}
+              />
+              <th className="px-4 py-3 font-medium">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {leads.map((lead) => (
+              <tr key={lead.id} className="text-slate-200 hover:bg-white/[0.02]">
+                <td className="px-4 py-3 font-medium text-white">{lead.name}</td>
+                <td className="px-4 py-3 text-slate-400">{lead.tradingViewId}</td>
+                <td className="px-4 py-3 text-slate-400">{lead.mobile}</td>
+                <td className="px-4 py-3 text-slate-400">{lead.email}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      lead.planType === "PAID"
+                        ? "bg-cyan-500/10 text-cyan-300 ring-1 ring-inset ring-cyan-500/30"
+                        : "bg-slate-500/10 text-slate-300 ring-1 ring-inset ring-slate-500/30"
+                    }`}
+                  >
+                    {lead.planType === "PAID" ? "Paid" : "Free"}
+                  </span>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-slate-400">
+                  {new Date(lead.createdAt).toLocaleString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </td>
+                <td onClick={() => deleteUser(lead.id)} className="px-4 py-3 text-slate-400"><LucideTrash size={14} /></td>
+              </tr>
+            ))}
+
+            {!loading && leads.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-4 py-10 text-center text-slate-500">
+                  No leads match your filters.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex flex-col gap-3 border-t border-white/10 p-4 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <span>
+          {pagination.total === 0
+            ? "No results"
+            : `Showing ${rangeStart}-${rangeEnd} of ${pagination.total}`}
+        </span>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={pagination.page <= 1 || loading}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-slate-300 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <span className="min-w-[80px] text-center">
+            Page {pagination.page} of {pagination.totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+            disabled={pagination.page >= pagination.totalPages || loading}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-slate-300 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SortableHeader({
+  label,
+  field,
+  sortBy,
+  order,
+  onSort,
+}: {
+  label: string;
+  field: SortBy;
+  sortBy: SortBy;
+  order: SortOrder;
+  onSort: (field: SortBy) => void;
+}) {
+  const active = sortBy === field;
+  return (
+    <th className="px-4 py-3 font-medium">
+      <button
+        onClick={() => onSort(field)}
+        className={`flex items-center gap-1 transition hover:text-white ${
+          active ? "text-white" : ""
+        }`}
+      >
+        {label}
+        <ArrowUpDown className={`h-3 w-3 ${active ? "opacity-100" : "opacity-40"}`} />
+        {active && <span className="text-[10px]">{order === "asc" ? "↑" : "↓"}</span>}
+      </button>
+    </th>
+  );
+}
