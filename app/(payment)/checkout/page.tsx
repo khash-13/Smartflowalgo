@@ -17,9 +17,6 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
   const token = query.plan
   const plan = decodePlanToken(token);
 
-  console.log(plan);
-  
-
   if (!plan) { 
     redirect("/plans");
   }

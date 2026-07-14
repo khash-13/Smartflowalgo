@@ -17,6 +17,7 @@ export default async function AdminLeadsPage() {
     prisma.user.count(),
   ]);
 
+
   return (
     <main className="min-h-screen bg-slate-950 p-6 sm:p-10">
       <div className="mx-auto max-w-9xl">

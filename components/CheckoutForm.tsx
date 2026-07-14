@@ -34,13 +34,14 @@ const FIELD_LABELS: Record<FieldName, string> = {
 // TODO: point these at your real destinations before shipping.
 const TELEGRAM_CHANNEL_URL =
   process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL ?? "https://t.me/your_channel";
-const PAYMENT_GATEWAY_URL =
-  process.env.NEXT_PUBLIC_PAYMENT_GATEWAY_URL ?? "/api/create-payment-order";
+const PAYMENT_GATEWAY_URL = "/api/payments/create";
 
 export default function CheckoutForm({ plan }: CheckoutFormProps) {
   const [form, setForm] = useState<CheckoutFormValues>(EMPTY_FORM);
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [checking, setChecking] = useState<Partial<Record<FieldName, boolean>>>({});
+  const [checking, setChecking] = useState<Partial<Record<FieldName, boolean>>>(
+    {},
+  );
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -85,83 +86,150 @@ export default function CheckoutForm({ plan }: CheckoutFormProps) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
     setFormError(null);
+    setErrors({});
 
     const result = checkoutFormSchema.safeParse(form);
+
     if (!result.success) {
       const fieldErrors: FieldErrors = {};
+
       for (const issue of result.error.issues) {
         const field = issue.path[0] as FieldName;
         fieldErrors[field] = issue.message;
       }
+
       setErrors(fieldErrors);
       return;
     }
 
     setSubmitting(true);
+
     try {
-      // Final, authoritative duplicate check right before saving —
-      // covers cases where the user never blurred a field (e.g. paste +
-      // immediate submit) or values changed after the earlier checks.
+      // Final duplicate check
       const params = new URLSearchParams({
         email: result.data.email,
         mobile: result.data.mobile,
         tradingViewId: result.data.tradingViewId,
       });
+
       const checkRes = await fetch(`/api/save-data?${params.toString()}`);
       const checkData = await checkRes.json();
 
       if (checkRes.ok) {
         const dupErrors: FieldErrors = {};
-        if (checkData.emailExists) dupErrors.email = "This email is already registered";
-        if (checkData.mobileExists) dupErrors.mobile = "This mobile number is already registered";
+
+        if (checkData.emailExists)
+          dupErrors.email = "This email is already registered";
+
+        if (checkData.mobileExists)
+          dupErrors.mobile = "This mobile number is already registered";
+
         if (checkData.tradingViewIdExists)
           dupErrors.tradingViewId = "This TradingView ID is already registered";
 
         if (Object.keys(dupErrors).length > 0) {
           setErrors(dupErrors);
-          setSubmitting(false);
           return;
         }
       }
 
-      const saveRes = await fetch("/api/save-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...result.data,
-          planType: plan.type,
-        }),
-      });
+      // ============================
+      // FREE PLAN
+      // ============================
+      async function saveUser() {
+        const saveRes = await fetch("/api/save-data", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...result.data,
+            planType: plan.type,
+          }),
+        });
 
-      const saveData = await saveRes.json();
+        const saveData = await saveRes.json();
 
-      if (!saveRes.ok) {
-        if (saveRes.status === 409 && Array.isArray(saveData.conflicts)) {
-          const dupErrors: FieldErrors = {};
-          for (const field of saveData.conflicts as string[]) {
-            if (field === "email" || field === "mobile" || field === "tradingViewId") {
-              dupErrors[field] = `This ${FIELD_LABELS[field].toLowerCase()} is already registered`;
+        if (!saveRes.ok) {
+          if (saveRes.status === 409 && Array.isArray(saveData.conflicts)) {
+            const dupErrors: FieldErrors = {};
+
+            for (const field of saveData.conflicts as string[]) {
+              if (
+                field === "email" ||
+                field === "mobile" ||
+                field === "tradingViewId"
+              ) {
+                dupErrors[field] = `This ${FIELD_LABELS[
+                  field
+                ].toLowerCase()} is already registered`;
+              }
             }
+
+            setErrors(dupErrors);
+          } else {
+            setFormError(
+              saveData.error ?? "Something went wrong. Please try again.",
+            );
           }
-          setErrors(dupErrors);
-        } else {
-          setFormError(saveData.error ?? "Something went wrong. Please try again.");
         }
-        setSubmitting(false);
+        return saveData.id
+      }
+      if (!isPaid) {
+        await saveUser();
+        window.location.href = TELEGRAM_CHANNEL_URL;
         return;
       }
 
-      // Saved successfully — route based on plan type.
+      // ============================
+      // PAID PLAN
+      // ============================
+
       if (isPaid) {
-        const url = new URL(PAYMENT_GATEWAY_URL, window.location.origin);
-        url.searchParams.set("leadId", saveData.id);
-        window.location.href = url.toString();
-      } else {
-        window.location.href = TELEGRAM_CHANNEL_URL;
+        // First creation of payment gateawy
+
+        const res = await fetch("/api/payments/create", {
+          method: "POST",
+          body: JSON.stringify({
+            amount: "30",
+            description: "One price. Everything unlocked.",
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const status = data.status;
+          const checkoutId = data.id;
+          const checkoutRef = data.checkout_reference;
+
+          const user = await saveUser();
+          const payment = await fetch("/api/payments/db", {
+            method: "POST",
+            body: JSON.stringify({
+              amount: data.amount,
+              currency: data.currency,
+              checkoutId,
+              checkoutReference: checkoutRef,
+              merchantCode: process.env.SUMUP_MERCHANT_CODE,
+              status: status,
+              userId: user
+            }),
+          });
+
+          if (payment.ok) {
+            window.location.href = data.hosted_checkout_url
+          }
+        }
       }
-    } catch {
-      setFormError("Network error — please check your connection and try again.");
+    } catch (error) {
+      console.error(error);
+
+      setFormError(
+        "Network error — please check your connection and try again.",
+      );
+    } finally {
       setSubmitting(false);
     }
   }
@@ -187,11 +255,15 @@ export default function CheckoutForm({ plan }: CheckoutFormProps) {
             {isPaid ? "Paid plan" : "Free plan"}
           </span>
 
-          <h2 className="mt-4 text-2xl font-semibold text-white">{plan.type}</h2>
+          <h2 className="mt-4 text-2xl font-semibold text-white">
+            {plan.type}
+          </h2>
 
           {isPaid && typeof plan.price === "number" && (
             <p className="mt-2 flex items-baseline gap-1 text-white">
-              <span className="text-3xl font-bold">₹{plan.price.toLocaleString("en-IN")}</span>
+              <span className="text-3xl font-bold">
+                ₹{plan.price.toLocaleString("en-IN")}
+              </span>
               <span className="text-sm text-slate-400">
                 / {plan.billingCycle === "yearly" ? "year" : "month"}
               </span>
@@ -200,9 +272,15 @@ export default function CheckoutForm({ plan }: CheckoutFormProps) {
 
           <div className="mt-6 space-y-3 border-t border-white/10 pt-6 text-sm text-slate-400">
             {isPaid ? (
-              <p>You&apos;ll be redirected to our secure payment gateway after this step.</p>
+              <p>
+                You&apos;ll be redirected to our secure payment gateway after
+                this step.
+              </p>
             ) : (
-              <p>You&apos;ll get an invite link to our Telegram channel right after this step.</p>
+              <p>
+                You&apos;ll get an invite link to our Telegram channel right
+                after this step.
+              </p>
             )}
           </div>
         </div>
@@ -324,7 +402,10 @@ function Field({
 }: FieldProps) {
   return (
     <div>
-      <label htmlFor={name} className="mb-1.5 block text-sm font-medium text-slate-300">
+      <label
+        htmlFor={name}
+        className="mb-1.5 block text-sm font-medium text-slate-300"
+      >
         {label}
       </label>
       <div className="relative">

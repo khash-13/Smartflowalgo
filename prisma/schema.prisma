@@ -17,17 +17,43 @@ enum AccType {
   FREE
 }
 
+enum PaymentProvider {
+  SUMUP
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+}
+
 model User {
-  id            String     @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String
-  tradingViewId String     @unique
-  mobile        String     @unique
-  email         String     @unique
+  tradingViewId String   @unique
+  mobile        String   @unique
+  email         String   @unique
   planType      AccType
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  paymentId     String?  @unique
+  payment       Payment? @relation(fields: [paymentId], references: [id])
 
   @@index([email])
   @@index([mobile])
   @@index([tradingViewId])
+}
+
+model Payment {
+  id                String          @id @default(cuid())
+  status            PaymentStatus   @default(PENDING)
+  amount            Decimal         @db.Decimal(10,2)
+  currency          String
+  checkoutId        String?         @unique
+  checkoutReference String          @unique
+  merchantCode      String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  user              User?
 }

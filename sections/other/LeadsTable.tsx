@@ -1,7 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Search, ChevronLeft, ChevronRight, ArrowUpDown, RefreshCw, LucideTrash } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import {
+  Loader2,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+  RefreshCw,
+  LucideTrash,
+  Receipt,
+} from "lucide-react";
+import PaymentsModal from "./PaymentModel";
 
 export interface Lead {
   id: string;
@@ -47,6 +58,9 @@ export default function LeadsTable({ initialData, initialTotal, pageSize }: Lead
   const [order, setOrder] = useState<SortOrder>("desc");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Which lead's payments modal is open, if any.
+  const [paymentsFor, setPaymentsFor] = useState<{ id: string; name: string } | null>(null);
 
   const isFirstRun = useRef(true);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -119,15 +133,16 @@ export default function LeadsTable({ initialData, initialTotal, pageSize }: Lead
   const rangeEnd = Math.min(pagination.page * pagination.pageSize, pagination.total);
 
   const deleteUser = async (id: string) => {
-    setLoading(true)
+    setLoading(true);
     const del = await fetch(`/api/save-data?id=${id}`, {
-        method: "DELETE"
-    })
+      method: "DELETE",
+    });
     if (del.ok) {
-        window.location.reload()
-        setLoading(false)
+      window.location.reload();
+      setLoading(false);
     }
-  }
+  };
+
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.03]">
       {/* Toolbar */}
@@ -223,13 +238,30 @@ export default function LeadsTable({ initialData, initialTotal, pageSize }: Lead
                     minute: "2-digit",
                   })}
                 </td>
-                <td onClick={() => deleteUser(lead.id)} className="px-4 py-3 text-slate-400"><LucideTrash size={14} /></td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setPaymentsFor({ id: lead.id, name: lead.name })}
+                      title="View payments"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 text-slate-400 transition hover:border-sky-500/30 hover:text-sky-300"
+                    >
+                      <Receipt size={14} />
+                    </button>
+                    <button
+                      onClick={() => deleteUser(lead.id)}
+                      title="Delete lead"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 text-slate-400 transition hover:border-red-500/30 hover:text-red-300"
+                    >
+                      <LucideTrash size={14} />
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
 
             {!loading && leads.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-slate-500">
+                <td colSpan={7} className="px-4 py-10 text-center text-slate-500">
                   No leads match your filters.
                 </td>
               </tr>
@@ -266,6 +298,18 @@ export default function LeadsTable({ initialData, initialTotal, pageSize }: Lead
           </button>
         </div>
       </div>
+
+      {/* Payments modal */}
+      <AnimatePresence>
+        {paymentsFor && (
+          <PaymentsModal
+            key={paymentsFor.id}
+            leadId={paymentsFor.id}
+            leadName={paymentsFor.name}
+            onClose={() => setPaymentsFor(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

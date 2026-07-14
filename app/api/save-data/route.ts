@@ -13,9 +13,18 @@ export async function GET(req: NextRequest) {
   const email = searchParams.get("email")?.trim().toLowerCase() || undefined;
   const mobile = searchParams.get("mobile")?.trim() || undefined;
   const tradingViewId = searchParams.get("tradingViewId")?.trim() || undefined;
+  
+  const id = searchParams.get("id")?.trim() || undefined;
 
   if (email || mobile || tradingViewId) {
     return checkDuplicates({ email, mobile, tradingViewId });
+  }
+  if (id) {
+    const data = await prisma.user.findFirst({
+      where: {id},
+      include: {payment: true}
+    })
+    return NextResponse.json({data}, {status: 200})
   }
 
   // Everything past this point returns full lead records — gate it.
