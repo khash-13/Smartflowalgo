@@ -105,7 +105,7 @@ export default function PaymentSuccessPage() {
 
         {/* Telegram Button */}
         <Link
-          href="https://t.me/yourtelegram"
+          href={process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL || "https://t.me/smartflowalgo"}
           target="_blank"
           className="mt-10 flex h-14 w-full items-center justify-center rounded-xl bg-sky-500 text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:bg-sky-600 active:scale-95"
         >

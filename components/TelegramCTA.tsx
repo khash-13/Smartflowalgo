@@ -13,6 +13,10 @@ interface TelegramCTAProps {
 
 export default function TelegramCTA({ id = "telegram-cta", variant = "banner" }: TelegramCTAProps) {
   const router = useRouter()
+  function goToCheckout() {
+    const tok = getToken("FREE")
+    router.push(`/checkout?plan=${tok}`)
+  }
 
   if (variant === "hero") {
     return (
@@ -32,15 +36,14 @@ export default function TelegramCTA({ id = "telegram-cta", variant = "banner" }:
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-            <Link
-              href={"https://t.me/smartflowalgo"}
-              target="_blank"
+            <button
+              onClick={goToCheckout}
               className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white text-blue-700 font-bold hover:bg-blue-50 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md cursor-pointer text-sm"
               id="tg-hero-join-btn"
             >
               <Send className="h-4 w-4" />
               Join Free Telegram
-            </Link>
+            </button>
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-white/10 flex items-start gap-2 text-xs text-blue-200">
@@ -73,15 +76,14 @@ export default function TelegramCTA({ id = "telegram-cta", variant = "banner" }:
         </p>
         
         <div className="mt-6 flex flex-col items-center gap-4">
-          <Link
-                        href={"https://t.me/smartflowalgo"}
-              target="_blank"
+          <button
+            onClick={goToCheckout}
             className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-emerald-600 dark:to-emerald-500 text-white font-bold hover:from-blue-700 hover:to-indigo-700 dark:hover:from-emerald-500 dark:hover:to-emerald-400 shadow-md hover:shadow-lg dark:shadow-emerald-500/20 transition-all scale-100 hover:scale-105 active:scale-95 duration-150 cursor-pointer text-sm uppercase tracking-wider animate-pulse-subtle"
             id="tg-join-free-btn"
           >
             <Send className="h-4 w-4" />
             Join Free Telegram Group
-          </Link>
+          </button>
           <span className="text-xs text-slate-500 dark:text-slate-500">
             No credit card or registration required. Fully free.
           </span>

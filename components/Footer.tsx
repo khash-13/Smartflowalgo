@@ -10,6 +10,10 @@ import Link from "next/link";
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const router = useRouter();
+  function goToCheckout() {
+    const tok = getToken("FREE")
+    router.push(`/checkout?plan=${tok}`)
+  }
 
 
   return (
@@ -33,14 +37,13 @@ export default function Footer() {
           </p>
 
           <div className="flex flex-col space-y-2 pt-2 text-xs">
-            <Link
-              href={"https://t.me/smartflowalgo"}
-              target="_blank"
+            <button
+              onClick={goToCheckout}
               className="flex items-center gap-2 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
             >
               <Send className="h-4 w-4 text-blue-500" />
               <span>Telegram</span>
-            </Link>
+            </button>
 
             <Link
               href="https://www.instagram.com/smartflowalgo"
@@ -124,10 +127,6 @@ export default function Footer() {
             <li className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-emerald-500 shrink-0" />
               <span>Mon - Fri, 10:00 - 18:00</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-slate-400 shrink-0" />
-              <span>+00 00000 00000</span>
             </li>
             <li className="pt-2">
               <span className="bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/40">

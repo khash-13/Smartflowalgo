@@ -33,8 +33,7 @@ const FIELD_LABELS: Record<FieldName, string> = {
 
 // TODO: point these at your real destinations before shipping.
 const TELEGRAM_CHANNEL_URL =
-  process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL ?? "https://t.me/your_channel";
-const PAYMENT_GATEWAY_URL = "/api/payments/create";
+  process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL ?? "https://t.me/smartflowalgo";
 
 export default function CheckoutForm({ plan }: CheckoutFormProps) {
   const [form, setForm] = useState<CheckoutFormValues>(EMPTY_FORM);

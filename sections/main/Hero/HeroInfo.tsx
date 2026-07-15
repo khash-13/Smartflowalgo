@@ -106,6 +106,10 @@ export function AnimatedGradientText({
 
 export default function HeroContent() {
   const router = useRouter();
+  function goToCheckout() {
+    const tok = getToken("FREE")
+    router.push(`/checkout?plan=${tok}`)
+  }
 
   return (
     <div className="lg:col-span-6 space-y-6 text-left">
@@ -176,16 +180,15 @@ export default function HeroContent() {
         }}
         className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2"
       >
-        <motion.a
-                      href={"https://t.me/smartflowalgo"}
-              target="_blank"
+        <motion.button
+        onClick={goToCheckout}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md"
         >
           <Send className="h-4 w-4" />
           Join Free Telegram
-        </motion.a>
+        </motion.button>
 
         <motion.button
           whileHover={{ scale: 1.03 }}

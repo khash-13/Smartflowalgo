@@ -18,6 +18,10 @@ function Rigester() {
   const [registerSubmitted, setRegisterSubmitted] = useState(false);
 
   const router = useRouter();
+  function goToCheckout() {
+    const tok = getToken("FREE")
+    router.push(`/checkout?plan=${tok}`)
+  }
 
   return (
     <section
@@ -174,13 +178,12 @@ function Rigester() {
                 </span>
                 <p className="text-slate-500 mt-0.5">
                   Avoid subscription checks altogether:{" "}
-                  <Link
-                    href={"https://t.me/smartflowalgo"}
-                    target="_blank"
+                  <button
+                    onClick={goToCheckout}
                     className="text-blue-500 font-bold hover:underline"
                   >
                     Join the Telegram community
-                  </Link>{" "}
+                  </button>{" "}
                   for free setup updates!
                 </p>
               </div>

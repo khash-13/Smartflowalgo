@@ -105,7 +105,7 @@ export default function PaymentFailedPage() {
         {/* Buttons */}
         <div className="mt-10 space-y-4">
           <Link
-            href="https://t.me/"
+            href={process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL || "https://t.me/smartflowalgo"}
             target="_blank"
             className="flex h-14 w-full items-center justify-center rounded-xl bg-red-500 text-lg font-semibold text-white transition-all duration-300 hover:scale-[1.03] hover:bg-red-600 active:scale-95"
           >

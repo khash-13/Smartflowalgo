@@ -13,7 +13,7 @@ const navItems = [
   { label: "Plans", page: "plans" },
   // { label: "Free Resources", page: "resources" },
   // { label: "Blogs", page: "blogs" },
-  { label: "Indicators", page: "indicators" },
+  // { label: "Indicators", page: "indicators" },
   // { label: "Study Material", page: "study" },
   // { label: "Simulator", page: "simulator" },
   { label: "About", page: "about" },
@@ -46,6 +46,10 @@ export default function Header() {
     setMobileMenuOpen(false);
   };
  
+  function goToCheckout() {
+    const tok = getToken("FREE")
+    router.push(`/checkout?plan=${tok}`)
+  }
 
   return (
     <>
@@ -55,13 +59,12 @@ export default function Header() {
           LAUNCH BONUS: Free Premium Telegram Community access for the first 200
           members! Only a few seats remaining.
         </span>
-        <Link
-              href={"https://t.me/smartflowalgo"}
-              target="_blank"
+        <button
+          onClick={goToCheckout}
           className="underline font-bold hover:text-yellow-100 transition-colors shrink-0"
         >
           Claim Now &rarr;
-        </Link>
+        </button>
       </div>
       <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-[#050B1D] backdrop-blur-md transition-colors">
         <div className="mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
@@ -222,15 +225,14 @@ export default function Header() {
                 </button>
               </div>
 
-              <Link
-                            href={"https://t.me/smartflowalgo"}
-              target="_blank"
+              <button 
+                onClick={goToCheckout}
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-blue-600 dark:bg-emerald-600 text-white text-xs font-bold shadow-sm uppercase tracking-wider"
                 id="m-hdr-join-tg-btn"
               >
                 <Send className="h-4 w-4" />
                 Join Free Telegram
-              </Link>
+              </button>
             </div>
           </div>
         )}
