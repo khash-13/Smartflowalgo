@@ -5,14 +5,13 @@ import Logo from "./Logo";
 import { Send, Mail, Phone, Calendar, ShieldAlert, Instagram } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getToken } from "@/lib/plan-token";
+import Link from "next/link";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const router = useRouter();
-    function goToCheckout() {
-      const tok = getToken("FREE")
-      router.push(`/checkout?plan=${tok}`)
-    }
+
+
   return (
     <footer className="bg-slate-50 dark:bg-black border-t border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
       {/* Top Main Section */}
@@ -34,21 +33,23 @@ export default function Footer() {
           </p>
 
           <div className="flex flex-col space-y-2 pt-2 text-xs">
-            <button
-            onClick={goToCheckout}
+            <Link
+              href={"https://t.me/smartflowalgo"}
+              target="_blank"
               className="flex items-center gap-2 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
             >
               <Send className="h-4 w-4 text-blue-500" />
               <span>Telegram</span>
-            </button>
+            </Link>
 
-            <a
+            <Link
               href="https://www.instagram.com/smartflowalgo"
+              target="_blank"
               className="flex items-center gap-2 hover:text-blue-500 transition-colors"
             >
               <Instagram className="h-4 w-4 text-pink-400" />
               <span>Smartflowalgo</span>
-            </a>
+            </Link>
 
             <a
               href="mailto:support@smartflowalgo.com"
