@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, type InputHTMLAttributes } from "react";
+import { useEffect, useState, type FormEvent, type InputHTMLAttributes } from "react";
 import { motion } from "framer-motion";
 import { Loader2, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
 import type { PlanPayload } from "@/lib/plan-token";
@@ -30,7 +30,7 @@ const FIELD_LABELS: Record<FieldName, string> = {
   tradingViewId: "TradingView ID",
   mobile: "Mobile number",
   email: "Email address",
-  promoterId: "Referral code (optional)"
+  promoterId: "Referral code (optional)",
 };
 
 // TODO: point these at your real destinations before shipping.
@@ -38,11 +38,13 @@ const TELEGRAM_CHANNEL_URL =
   process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL ?? "https://t.me/smartflowalgo";
 
 export default function CheckoutForm({ plan }: CheckoutFormProps) {
+  const [discount, setDiscount] = useState<{discount: number, name: string}>()
   const [form, setForm] = useState<CheckoutFormValues>(EMPTY_FORM);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [checking, setChecking] = useState<Partial<Record<FieldName, boolean>>>(
     {},
   );
+  const [amount, setAmount] = useState<number>(30)
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -55,6 +57,27 @@ export default function CheckoutForm({ plan }: CheckoutFormProps) {
     setFormError(null);
   }
 
+  async function checkRefCode(code: string) {
+    if (discount?.discount) {
+      return
+    }
+    const req = await fetch(`/api/promoters/code?id=${code}`)
+    if (req.status === 400) {
+      const data = await req.json()
+        setErrors((prev) => ({
+          ...prev,
+          "promoterId": `${data.data}`,
+        }));
+    }
+    if (req.status === 200) {
+      const {data} = await req.json()
+      console.log(data);
+      setDiscount({
+        discount: data.discount,
+        name: data.name
+      })
+    }
+  }
   // Live duplicate check — fires on blur for email / mobile / tradingViewId.
   async function checkDuplicateOnBlur(field: DuplicateField, rawValue: string) {
     const value = rawValue.trim();
@@ -84,171 +107,181 @@ export default function CheckoutForm({ plan }: CheckoutFormProps) {
       setChecking((prev) => ({ ...prev, [field]: false }));
     }
   }
-async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-  e.preventDefault();
 
-  setFormError(null);
-  setErrors({});
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
 
-  const result = checkoutFormSchema.safeParse(form);
+    setFormError(null);
+    setErrors({});
 
-  if (!result.success) {
-    const fieldErrors: FieldErrors = {};
+    const result = checkoutFormSchema.safeParse(form);
 
-    for (const issue of result.error.issues) {
-      const field = issue.path[0] as FieldName;
-      fieldErrors[field] = issue.message;
-    }
+    if (!result.success) {
+      const fieldErrors: FieldErrors = {};
 
-    setErrors(fieldErrors);
-    return;
-  }
-
-  // promoterId isn't a User field — keep it out of the User payload
-  // and only attach it when we create the Payment record.
-  const { promoterId, ...clientData } = result.data;
-  const normalizedPromoterId = promoterId?.trim() || undefined;
-
-  setSubmitting(true);
-
-  try {
-    // Final duplicate check
-    const params = new URLSearchParams({
-      email: clientData.email,
-      mobile: clientData.mobile,
-      tradingViewId: clientData.tradingViewId,
-    });
-
-    const checkRes = await fetch(`/api/save-data?${params.toString()}`);
-    const checkData = await checkRes.json();
-
-    if (checkRes.ok) {
-      const dupErrors: FieldErrors = {};
-
-      if (checkData.emailExists)
-        dupErrors.email = "This email is already registered";
-
-      if (checkData.mobileExists)
-        dupErrors.mobile = "This mobile number is already registered";
-
-      if (checkData.tradingViewIdExists)
-        dupErrors.tradingViewId = "This TradingView ID is already registered";
-
-      if (Object.keys(dupErrors).length > 0) {
-        setErrors(dupErrors);
-        return;
-      }
-    }
-
-    // ============================
-    // FREE PLAN
-    // ============================
-    async function saveUser() {
-      const saveRes = await fetch("/api/save-data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...clientData,
-          planType: plan.type,
-        }),
-      });
-
-      const saveData = await saveRes.json();
-
-      if (!saveRes.ok) {
-        if (saveRes.status === 409 && Array.isArray(saveData.conflicts)) {
-          const dupErrors: FieldErrors = {};
-
-          for (const field of saveData.conflicts as string[]) {
-            if (
-              field === "email" ||
-              field === "mobile" ||
-              field === "tradingViewId"
-            ) {
-              dupErrors[field] = `This ${FIELD_LABELS[
-                field
-              ].toLowerCase()} is already registered`;
-            }
-          }
-
-          setErrors(dupErrors);
-        } else {
-          setFormError(
-            saveData.error ?? "Something went wrong. Please try again.",
-          );
-        }
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as FieldName;
+        fieldErrors[field] = issue.message;
       }
 
-      return saveData.id;
-    }
-
-    if (!isPaid) {
-      await saveUser();
-      window.location.href = TELEGRAM_CHANNEL_URL;
+      setErrors(fieldErrors);
       return;
     }
 
-    // ============================
-    // PAID PLAN
-    // ============================
+    // promoterId isn't a User field — keep it out of the User payload
+    // and only attach it when we create the Payment record.
+    const { promoterId, ...clientData } = result.data;
+    const normalizedPromoterId = promoterId?.trim() || undefined;
 
-    if (isPaid) {
-      // First creation of payment gateway
-      const res = await fetch("/api/payments/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: "30",
-          description: "One price. Everything unlocked.",
-        }),
+    setSubmitting(true);
+
+    try {
+      // Final duplicate check
+      const params = new URLSearchParams({
+        email: clientData.email,
+        mobile: clientData.mobile,
+        tradingViewId: clientData.tradingViewId,
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const status = data.status;
-        const checkoutId = data.id;
-        const checkoutRef = data.checkout_reference;
+      const checkRes = await fetch(`/api/save-data?${params.toString()}`);
+      const checkData = await checkRes.json();
 
-        const userId = await saveUser();
+      if (checkRes.ok) {
+        const dupErrors: FieldErrors = {};
 
-        if (!userId) return;
+        if (checkData.emailExists)
+          dupErrors.email = "This email is already registered";
 
-        const payment = await fetch("/api/payments/db", {
+        if (checkData.mobileExists)
+          dupErrors.mobile = "This mobile number is already registered";
+
+        if (checkData.tradingViewIdExists)
+          dupErrors.tradingViewId = "This TradingView ID is already registered";
+
+        if (Object.keys(dupErrors).length > 0) {
+          setErrors(dupErrors);
+          return;
+        }
+      }
+
+      // ============================
+      // FREE PLAN
+      // ============================
+      async function saveUser() {
+        const saveRes = await fetch("/api/save-data", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            amount: data.amount,
-            currency: data.currency,
-            checkoutId,
-            checkoutReference: checkoutRef,
-            status: status,
-            userId,
-            promoterId: normalizedPromoterId,
+            ...clientData,
+            planType: plan.type,
           }),
         });
 
-        if (payment.ok) {
-          window.location.href = data.hosted_checkout_url;
+        const saveData = await saveRes.json();
+
+        if (!saveRes.ok) {
+          if (saveRes.status === 409 && Array.isArray(saveData.conflicts)) {
+            const dupErrors: FieldErrors = {};
+
+            for (const field of saveData.conflicts as string[]) {
+              if (
+                field === "email" ||
+                field === "mobile" ||
+                field === "tradingViewId"
+              ) {
+                dupErrors[field] = `This ${FIELD_LABELS[
+                  field
+                ].toLowerCase()} is already registered`;
+              }
+            }
+
+            setErrors(dupErrors);
+          } else {
+            setFormError(
+              saveData.error ?? "Something went wrong. Please try again.",
+            );
+          }
+        }
+
+        return saveData.id;
+      }
+
+      if (!isPaid) {
+        await saveUser();
+        window.location.href = TELEGRAM_CHANNEL_URL;
+        return;
+      }
+
+      // ============================
+      // PAID PLAN
+      // ============================
+
+      if (isPaid) {
+        // First creation of payment gateway
+        const res = await fetch("/api/payments/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: amount,
+            description: "One price. Everything unlocked.",
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const status = data.status;
+          const checkoutId = data.id;
+          const checkoutRef = data.checkout_reference;
+
+          const userId = await saveUser();
+
+          if (!userId) return;
+
+          const payment = await fetch("/api/payments/db", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              amount: amount,
+              currency: data.currency,
+              checkoutId,
+              checkoutReference: checkoutRef,
+              status: status,
+              userId,
+              promoterId: normalizedPromoterId,
+            }),
+          });
+
+          if (payment.ok) {
+            window.location.href = data.hosted_checkout_url;
+          }
         }
       }
+    } catch (error) {
+      console.error(error);
+
+      setFormError(
+        "Network error — please check your connection and try again.",
+      );
+    } finally {
+      setSubmitting(false);
     }
-  } catch (error) {
-    console.error(error);
-
-    setFormError(
-      "Network error — please check your connection and try again.",
-    );
-  } finally {
-    setSubmitting(false);
   }
-}
 
+  useEffect(() => {
+    if (discount?.discount) {
+      const newAmount = Number((amount * (1 - discount.discount / 100)).toFixed(2));
+      console.log(newAmount);
+      setAmount(newAmount)
+    }
+  }, [discount])
+
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -277,13 +310,18 @@ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
           {isPaid && typeof plan.price === "number" && (
             <p className="mt-2 flex items-baseline gap-1 text-white">
               <span className="text-3xl font-bold">
-                ₹{plan.price.toLocaleString("en-IN")}
+                ₹{amount}
               </span>
-              <span className="text-sm text-slate-400">
-                / {plan.billingCycle === "yearly" ? "year" : "month"}
+              <span className={`text-sm text-slate-400`}>
+              <span className="line-through font-medium text-lg">{"  "}{discount?.discount ? "₹" + plan.price.toLocaleString("en-IN") : ""} </span>/ {plan.billingCycle === "yearly" ? "year" : "month"}
               </span>
             </p>
           )}
+          {
+            discount?.name &&
+          <p className="text-sm text-slate-400 mt-2 -mb-4 tracking-tight">Ref by <span className="text-slate-200 font-medium">{discount?.name}</span>
+          </p>
+          }
 
           <div className="mt-6 space-y-3 border-t border-white/10 pt-6 text-sm text-slate-400">
             {isPaid ? (
@@ -357,21 +395,20 @@ async function handleSubmit(e: FormEvent<HTMLFormElement>) {
               placeholder="you@example.com"
               autoComplete="email"
             />
-            {
-              isPaid && (
-                <Field
+            {isPaid && (
+              <Field
                 label={FIELD_LABELS.promoterId}
                 name="promoterId"
                 type="text"
                 value={form.promoterId as string}
                 onChange={(v) => updateField("promoterId", v)}
+                onBlur={(v) => checkRefCode(v)}
                 checking={checking.promoterId}
                 error={errors.promoterId}
                 placeholder="IVHQrZRDyKFs...."
                 autoComplete="promoterId"
               />
-              )
-            }
+            )}
 
             {formError && (
               <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">

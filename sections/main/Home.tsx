@@ -2,9 +2,7 @@
 
 import React from "react";
 import TelegramCTA from "@/components/TelegramCTA";
-import Pricing from "./Pricing";
 import Featured from "../other/Featured";
-import Trusted from "../other/Trusted";
 import Hero from "./Hero/Hero";
 import PricingBanner from "../other/HorizontalPricing";
 import FreePlanBanner from "../other/PricingBanner";
@@ -12,6 +10,7 @@ import TickerTape from "../other/TradingView";
 import LogoMarquee from "../other/Marquee";
 import { images } from "@/data/marquee";
 import GoldIndicatorAbout from "../other/About";
+import ProductShowcase from "./Showcase";
 
 function Home() {
   return (
@@ -24,6 +23,7 @@ function Home() {
       />
       <TickerTape />
       </div>
+      <ProductShowcase />
       <GoldIndicatorAbout />
       <FreePlanBanner />
       <PricingBanner />

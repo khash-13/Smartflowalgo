@@ -1,42 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  Send,
-  TrendingUp,
-  BarChart2,
-  BookOpen,
-  Sliders,
-  ShieldAlert,
-  ArrowRight,
-  CheckCircle,
-  Award,
-  Users,
-  Layers,
-  Heart,
-  ChevronRight,
-  ChevronLeft,
-  Search,
-  Filter,
-  FileText,
-  Badge,
-  Sparkles,
-  Lock,
-  Mail,
-  Phone,
-  User,
-  Clock,
-  HelpCircle,
-  Download,
-  BarChart3,
-} from "lucide-react";
-
-
-import TelegramCTA from "../components/TelegramCTA";
-
+import React from "react";
 // Data
-import { blogPosts } from "../data/blogs";
-import { plans } from "../data/plans";
 import Home from "@/sections/main/Home";
 
 export default function Page() {

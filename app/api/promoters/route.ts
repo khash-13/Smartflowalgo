@@ -8,6 +8,8 @@ const createInfluencerSchema = z.object({
   mobile: z.string().trim().min(7, "Enter a valid mobile number"),
   email: z.string().trim().email("Enter a valid email"),
   tradingViewId: z.string().trim().optional(),
+  id: z.string().trim().optional(),
+  discount: z.number().optional().default(0)
 });
 
 export async function GET(req: NextRequest) {
@@ -56,6 +58,8 @@ export async function POST(req: NextRequest) {
         name: parsed.data.name,
         mobile: parsed.data.mobile,
         email: parsed.data.email,
+        id: parsed.data.id,
+        discount: parsed.data.discount,
         tradingViewId: parsed.data.tradingViewId || undefined,
         userType: "INFULENCER",
       },

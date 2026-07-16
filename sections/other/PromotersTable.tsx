@@ -21,6 +21,7 @@ type Promoter = {
   tradingViewId: string | null;
   mobile: string;
   email: string;
+  discount: number;
   planType: string | null;
   userType: string;
   createdAt: string;
@@ -39,6 +40,8 @@ type FormState = {
   mobile: string;
   email: string;
   tradingViewId: string;
+  id?: string;
+  discount: number
 };
 
 type ReferralPayment = {
@@ -56,7 +59,7 @@ type ReferralPayment = {
   } | null;
 };
 
-const EMPTY_FORM: FormState = { name: "", mobile: "", email: "", tradingViewId: "" };
+const EMPTY_FORM: FormState = { name: "", mobile: "", email: "", tradingViewId: "", id: "", discount: 0 };
 
 const STATUS_STYLES: Record<string, string> = {
   PAID: "bg-emerald-500/10 text-emerald-400",
@@ -141,6 +144,8 @@ export default function PromotersTable({ initialData, initialTotal, pageSize }: 
           mobile: form.mobile.trim(),
           email: form.email.trim(),
           tradingViewId: form.tradingViewId.trim() || undefined,
+          discount: Number(form.discount) || 0,
+          id: form.id
         }),
       });
 
@@ -223,6 +228,7 @@ export default function PromotersTable({ initialData, initialTotal, pageSize }: 
                 <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">TradingView</th>
                 <th className="px-4 py-3 font-medium">Referrals</th>
+                <th className="px-4 py-3 font-medium">Discount %</th>
                 <th className="px-4 py-3 font-medium">Joined</th>
                 <th className="px-4 py-3 font-medium text-right">Actions</th>
               </tr>
@@ -252,6 +258,11 @@ export default function PromotersTable({ initialData, initialTotal, pageSize }: 
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center rounded-full bg-sky-500/10 px-2.5 py-0.5 text-xs font-medium text-sky-400">
                       {promoter.referralCount}
+                    </span>
+                  </td>
+                                    <td className="px-4 py-3">
+                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-sky-400">
+                      {promoter.discount ?? 0}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-slate-400">
@@ -340,6 +351,30 @@ export default function PromotersTable({ initialData, initialTotal, pageSize }: 
               </div>
 
               <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-400">Referral code</label>
+                  <input
+                    type="text"
+                    value={form.id}
+                    onChange={(e) => updateField("id", e.target.value)}
+                    className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:border-sky-500 focus:outline-none"
+                    placeholder="TTY10"
+                  />
+                  {formErrors.id && <p className="mt-1 text-xs text-red-400">{formErrors.id}</p>}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-400">Discount Percentage</label>
+                  <input
+                    type="number"
+                    value={form.discount}
+                    onChange={(e) => updateField("discount", e.target.value)}
+                    className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:border-sky-500 focus:outline-none"
+                    placeholder="TTY10"
+                  />
+                  {formErrors.discount && <p className="mt-1 text-xs text-red-400">{formErrors.discount}</p>}
+                </div>
+
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-400">Name</label>
                   <input

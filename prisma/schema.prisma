@@ -42,7 +42,7 @@ model User {
   userType      UserType  @default(CLIENT)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
+  discount      Int?
   payments      Payment[] @relation("PaymentClient")
   referrals     Payment[] @relation("PaymentPromoter")
 
