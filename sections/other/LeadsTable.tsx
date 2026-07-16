@@ -14,13 +14,14 @@ import {
 } from "lucide-react";
 import PaymentsModal from "./PaymentModel";
 
+type AccType = "FREE" | "PAID" 
 export interface Lead {
   id: string;
   name: string;
-  tradingViewId: string;
+  tradingViewId: string | null;
   mobile: string;
   email: string;
-  planType: "FREE" | "PAID";
+  planType?: AccType;
   createdAt: string; // ISO string
 }
 
@@ -36,7 +37,7 @@ type SortBy = "createdAt" | "name";
 type SortOrder = "asc" | "desc";
 
 interface LeadsTableProps {
-  initialData: Lead[];
+  initialData: any[];
   initialTotal: number;
   pageSize: number;
 }

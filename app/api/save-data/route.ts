@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   if (id) {
     const data = await prisma.user.findFirst({
       where: {id},
-      include: {payment: true}
+      include: {payments: true}
     })
     return NextResponse.json({data}, {status: 200})
   }
@@ -88,6 +88,7 @@ async function listLeads(searchParams: URLSearchParams) {
     ...(search
       ? {
           OR: [
+            {userType: "CLIENT"},
             { name: { contains: search, mode: "insensitive" } },
             { email: { contains: search, mode: "insensitive" } },
             { mobile: { contains: search, mode: "insensitive" } },

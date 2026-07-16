@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Sparkles,
   Users,
+  Gift,
 } from "lucide-react";
 import { getToken } from "@/lib/plan-token";
 import { useRouter } from "next/navigation";
@@ -77,11 +78,11 @@ function CountUp({ to, className }: { to: number; className?: string }) {
 }
 
 export default function FreePlanBanner() {
-  const router = useRouter()
+  const router = useRouter();
 
   function goToCheckout() {
-    const tok = getToken("FREE")
-    router.push(`/checkout?plan=${tok}`)
+    const tok = getToken("FREE");
+    router.push(`/checkout?plan=${tok}`);
   }
 
   return (
@@ -132,6 +133,20 @@ export default function FreePlanBanner() {
             Get a real feel for how we trade — live setup ideas across Gold,
             BTC & Forex, dropped straight into Telegram.
           </motion.p>
+
+          {/* Launch offer banner (scaled down) */}
+          <motion.div
+            variants={itemVariants}
+            className="flex max-w-md items-center gap-2.5 rounded-full border border-amber-500/30 bg-amber-500/[0.06] px-4 py-2 dark:border-amber-400/20 dark:bg-amber-400/[0.08]"
+          >
+            <Gift className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              <span className="font-bold text-amber-700 dark:text-amber-400">
+                Launch Offer (Jul 20–30):
+              </span>{" "}
+              upgrade later and get VIP Indicators free for 2 weeks
+            </span>
+          </motion.div>
 
           {/* price + CTA, inline row instead of stacked column */}
           <motion.div
@@ -243,7 +258,7 @@ export default function FreePlanBanner() {
 
 
           <motion.button
-          onClick={goToCheckout}
+            onClick={goToCheckout}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-sky-600/20 bg-white px-4 py-2 text-xs font-bold text-sky-600 shadow-sm transition-colors hover:bg-sky-600/5 dark:border-sky-400/20 dark:bg-transparent dark:text-sky-400 dark:hover:bg-sky-400/5"

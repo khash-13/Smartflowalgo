@@ -22,6 +22,7 @@ const EMPTY_FORM: CheckoutFormValues = {
   tradingViewId: "",
   mobile: "",
   email: "",
+  promoterId: "",
 };
 
 const FIELD_LABELS: Record<FieldName, string> = {
@@ -29,6 +30,7 @@ const FIELD_LABELS: Record<FieldName, string> = {
   tradingViewId: "TradingView ID",
   mobile: "Mobile number",
   email: "Email address",
+  promoterId: "Referral code (optional)"
 };
 
 // TODO: point these at your real destinations before shipping.
@@ -82,156 +84,170 @@ export default function CheckoutForm({ plan }: CheckoutFormProps) {
       setChecking((prev) => ({ ...prev, [field]: false }));
     }
   }
+async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  e.preventDefault();
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  setFormError(null);
+  setErrors({});
 
-    setFormError(null);
-    setErrors({});
+  const result = checkoutFormSchema.safeParse(form);
 
-    const result = checkoutFormSchema.safeParse(form);
+  if (!result.success) {
+    const fieldErrors: FieldErrors = {};
 
-    if (!result.success) {
-      const fieldErrors: FieldErrors = {};
-
-      for (const issue of result.error.issues) {
-        const field = issue.path[0] as FieldName;
-        fieldErrors[field] = issue.message;
-      }
-
-      setErrors(fieldErrors);
-      return;
+    for (const issue of result.error.issues) {
+      const field = issue.path[0] as FieldName;
+      fieldErrors[field] = issue.message;
     }
 
-    setSubmitting(true);
+    setErrors(fieldErrors);
+    return;
+  }
 
-    try {
-      // Final duplicate check
-      const params = new URLSearchParams({
-        email: result.data.email,
-        mobile: result.data.mobile,
-        tradingViewId: result.data.tradingViewId,
+  // promoterId isn't a User field — keep it out of the User payload
+  // and only attach it when we create the Payment record.
+  const { promoterId, ...clientData } = result.data;
+  const normalizedPromoterId = promoterId?.trim() || undefined;
+
+  setSubmitting(true);
+
+  try {
+    // Final duplicate check
+    const params = new URLSearchParams({
+      email: clientData.email,
+      mobile: clientData.mobile,
+      tradingViewId: clientData.tradingViewId,
+    });
+
+    const checkRes = await fetch(`/api/save-data?${params.toString()}`);
+    const checkData = await checkRes.json();
+
+    if (checkRes.ok) {
+      const dupErrors: FieldErrors = {};
+
+      if (checkData.emailExists)
+        dupErrors.email = "This email is already registered";
+
+      if (checkData.mobileExists)
+        dupErrors.mobile = "This mobile number is already registered";
+
+      if (checkData.tradingViewIdExists)
+        dupErrors.tradingViewId = "This TradingView ID is already registered";
+
+      if (Object.keys(dupErrors).length > 0) {
+        setErrors(dupErrors);
+        return;
+      }
+    }
+
+    // ============================
+    // FREE PLAN
+    // ============================
+    async function saveUser() {
+      const saveRes = await fetch("/api/save-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...clientData,
+          planType: plan.type,
+        }),
       });
 
-      const checkRes = await fetch(`/api/save-data?${params.toString()}`);
-      const checkData = await checkRes.json();
+      const saveData = await saveRes.json();
 
-      if (checkRes.ok) {
-        const dupErrors: FieldErrors = {};
+      if (!saveRes.ok) {
+        if (saveRes.status === 409 && Array.isArray(saveData.conflicts)) {
+          const dupErrors: FieldErrors = {};
 
-        if (checkData.emailExists)
-          dupErrors.email = "This email is already registered";
+          for (const field of saveData.conflicts as string[]) {
+            if (
+              field === "email" ||
+              field === "mobile" ||
+              field === "tradingViewId"
+            ) {
+              dupErrors[field] = `This ${FIELD_LABELS[
+                field
+              ].toLowerCase()} is already registered`;
+            }
+          }
 
-        if (checkData.mobileExists)
-          dupErrors.mobile = "This mobile number is already registered";
-
-        if (checkData.tradingViewIdExists)
-          dupErrors.tradingViewId = "This TradingView ID is already registered";
-
-        if (Object.keys(dupErrors).length > 0) {
           setErrors(dupErrors);
-          return;
+        } else {
+          setFormError(
+            saveData.error ?? "Something went wrong. Please try again.",
+          );
         }
       }
 
-      // ============================
-      // FREE PLAN
-      // ============================
-      async function saveUser() {
-        const saveRes = await fetch("/api/save-data", {
+      return saveData.id;
+    }
+
+    if (!isPaid) {
+      await saveUser();
+      window.location.href = TELEGRAM_CHANNEL_URL;
+      return;
+    }
+
+    // ============================
+    // PAID PLAN
+    // ============================
+
+    if (isPaid) {
+      // First creation of payment gateway
+      const res = await fetch("/api/payments/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: "30",
+          description: "One price. Everything unlocked.",
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const status = data.status;
+        const checkoutId = data.id;
+        const checkoutRef = data.checkout_reference;
+
+        const userId = await saveUser();
+
+        if (!userId) return;
+
+        const payment = await fetch("/api/payments/db", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            ...result.data,
-            planType: plan.type,
+            amount: data.amount,
+            currency: data.currency,
+            checkoutId,
+            checkoutReference: checkoutRef,
+            status: status,
+            userId,
+            promoterId: normalizedPromoterId,
           }),
         });
 
-        const saveData = await saveRes.json();
-
-        if (!saveRes.ok) {
-          if (saveRes.status === 409 && Array.isArray(saveData.conflicts)) {
-            const dupErrors: FieldErrors = {};
-
-            for (const field of saveData.conflicts as string[]) {
-              if (
-                field === "email" ||
-                field === "mobile" ||
-                field === "tradingViewId"
-              ) {
-                dupErrors[field] = `This ${FIELD_LABELS[
-                  field
-                ].toLowerCase()} is already registered`;
-              }
-            }
-
-            setErrors(dupErrors);
-          } else {
-            setFormError(
-              saveData.error ?? "Something went wrong. Please try again.",
-            );
-          }
-        }
-        return saveData.id
-      }
-      if (!isPaid) {
-        await saveUser();
-        window.location.href = TELEGRAM_CHANNEL_URL;
-        return;
-      }
-
-      // ============================
-      // PAID PLAN
-      // ============================
-
-      if (isPaid) {
-        // First creation of payment gateawy
-
-        const res = await fetch("/api/payments/create", {
-          method: "POST",
-          body: JSON.stringify({
-            amount: "30",
-            description: "One price. Everything unlocked.",
-          }),
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          const status = data.status;
-          const checkoutId = data.id;
-          const checkoutRef = data.checkout_reference;
-
-          const user = await saveUser();
-          const payment = await fetch("/api/payments/db", {
-            method: "POST",
-            body: JSON.stringify({
-              amount: data.amount,
-              currency: data.currency,
-              checkoutId,
-              checkoutReference: checkoutRef,
-              merchantCode: process.env.SUMUP_MERCHANT_CODE,
-              status: status,
-              userId: user
-            }),
-          });
-
-          if (payment.ok) {
-            window.location.href = data.hosted_checkout_url
-          }
+        if (payment.ok) {
+          window.location.href = data.hosted_checkout_url;
         }
       }
-    } catch (error) {
-      console.error(error);
-
-      setFormError(
-        "Network error — please check your connection and try again.",
-      );
-    } finally {
-      setSubmitting(false);
     }
+  } catch (error) {
+    console.error(error);
+
+    setFormError(
+      "Network error — please check your connection and try again.",
+    );
+  } finally {
+    setSubmitting(false);
   }
+}
 
   return (
     <motion.div
@@ -341,6 +357,21 @@ export default function CheckoutForm({ plan }: CheckoutFormProps) {
               placeholder="you@example.com"
               autoComplete="email"
             />
+            {
+              isPaid && (
+                <Field
+                label={FIELD_LABELS.promoterId}
+                name="promoterId"
+                type="text"
+                value={form.promoterId as string}
+                onChange={(v) => updateField("promoterId", v)}
+                checking={checking.promoterId}
+                error={errors.promoterId}
+                placeholder="IVHQrZRDyKFs...."
+                autoComplete="promoterId"
+              />
+              )
+            }
 
             {formError && (
               <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">

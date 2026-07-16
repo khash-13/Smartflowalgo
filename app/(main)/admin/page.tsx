@@ -11,32 +11,30 @@ const PAGE_SIZE = 10;
 export default async function AdminLeadsPage() {
   const [leads, total] = await Promise.all([
     prisma.user.findMany({
+      where: {userType: "CLIENT"},
       orderBy: { createdAt: "desc" },
       take: PAGE_SIZE,
     }),
-    prisma.user.count(),
+    prisma.user.count({where: {userType: "CLIENT"}}),
   ]);
 
-
   return (
-    <main className="min-h-screen bg-slate-950 p-6 sm:p-10">
-      <div className="mx-auto max-w-9xl">
-        <h1 className="text-2xl font-semibold text-white">Checkout Leads</h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Everyone who has submitted the checkout form — free and paid.
-        </p>
+    <div>
+      <h1 className="text-2xl font-semibold text-white">Checkout Leads</h1>
+      <p className="mt-1 text-sm text-slate-400">
+        Everyone who has submitted the checkout form — free and paid.
+      </p>
 
-        <div className="mt-6">
-          <LeadsTable
-            initialData={leads.map((lead) => ({
-              ...lead,
-              createdAt: lead.createdAt.toISOString(),
-            }))}
-            initialTotal={total}
-            pageSize={PAGE_SIZE}
-          />
-        </div>
+      <div className="mt-6">
+        <LeadsTable
+          initialData={leads.map((lead) => ({
+            ...lead,
+            createdAt: lead.createdAt.toISOString(),
+          }))}
+          initialTotal={total}
+          pageSize={PAGE_SIZE}
+        />
       </div>
-    </main>
+    </div>
   );
 }

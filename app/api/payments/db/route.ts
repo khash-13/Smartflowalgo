@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PaymentStatus } from "@/generated/prisma/enums";
+import { Prisma } from "@/generated/prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
     const params = req.nextUrl.searchParams;
     const ref = params.get("ref");
 
-    
     if (ref) {
       const payments = await prisma.payment.findMany({
         where: {
           checkoutReference: ref,
+        },
+        include: {
+          user: true,
+          promoter: true,
         },
       });
       return NextResponse.json(payments[0]);
@@ -23,6 +27,7 @@ export async function GET(req: NextRequest) {
       },
       include: {
         user: true,
+        promoter: true,
       },
     });
 
@@ -45,13 +50,43 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { amount, currency, checkoutId, checkoutReference, status, userId } =
-      body;
+    const {
+      amount,
+      currency,
+      checkoutId,
+      checkoutReference,
+      status,
+      userId,
+      promoterId,
+    } = body;
 
     if (!amount) {
       return NextResponse.json(
         {
           error: "Amount is required",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    if (!userId) {
+      return NextResponse.json(
+        {
+          error: "userId is required",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    // A promoter can't also be the paying client on their own payment
+    if (promoterId && promoterId === userId) {
+      return NextResponse.json(
+        {
+          error: "promoterId cannot be the same as userId",
         },
         {
           status: 400,
@@ -72,6 +107,17 @@ export async function POST(req: NextRequest) {
             id: userId,
           },
         },
+        ...(promoterId && {
+          promoter: {
+            connect: {
+              id: promoterId,
+            },
+          },
+        }),
+      },
+      include: {
+        user: true,
+        promoter: true,
       },
     });
 
@@ -79,6 +125,20 @@ export async function POST(req: NextRequest) {
       status: 201,
     });
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      return NextResponse.json(
+        {
+          error: "userId or promoterId does not match an existing user",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
     console.error(error);
 
     return NextResponse.json(

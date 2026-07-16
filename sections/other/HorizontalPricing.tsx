@@ -11,6 +11,9 @@ import {
   RefreshCw,
   ArrowRight,
   Star,
+  Gift,
+  ShieldCheck,
+  Send,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -19,40 +22,46 @@ const PRICE = 30;
 const FEATURES = [
   {
     icon: TrendingUp,
-    title: "Live Signals",
-    desc: "Gold, BTC & Forex, real-time",
-    value: 59,
-    tag: "Most Popular",
+    title: "GOLD VIP Indicator",
+    desc: "Latest Version",
+    value: 49,
+    tag: "Latest",
   },
   {
-    icon: GraduationCap,
-    title: "Full Course Library",
-    desc: "Every strategy module included",
-    value: 30,
-  },
-  {
-    icon: Video,
-    title: "Live Sessions",
-    desc: "Weekly strategy walkthroughs",
-    value: 29,
-  },
-  {
-    icon: Users,
-    title: "Private Community",
-    desc: "Trade alongside 12K+ members",
-    value: 19,
-  },
-  {
-    icon: FileDown,
-    title: "Downloadable Resources",
-    desc: "Cheat sheets & PDF guides",
-    value: 9,
+    icon: TrendingUp,
+    title: "BTC VIP Indicator",
+    desc: "Latest Version",
+    value: 39,
   },
   {
     icon: RefreshCw,
-    title: "Lifetime Updates",
-    desc: "New tools added, same price",
+    title: "EA Trial",
+    desc: "15-Day FREE Trial (August)",
+    value: 25,
+  },
+  {
+    icon: Users,
+    title: "VIP Telegram Group",
+    desc: "Exclusive members-only community",
+    value: 20,
+  },
+  {
+    icon: TrendingUp,
+    title: "Trade Setups",
+    desc: "2–3 High-Probability Setups",
+    value: 30,
+  },
+  {
+    icon: RefreshCw,
+    title: "Daily Gold Updates",
+    desc: "Software updates every trading day",
     value: 15,
+  },
+  {
+    icon: GraduationCap,
+    title: "Live Q&A & Support",
+    desc: "Trading help and mentoring",
+    value: 20,
   },
 ];
 
@@ -83,12 +92,13 @@ const itemVariants: Variants = {
 };
 
 export default function PricingBanner() {
-    const router = useRouter()
-  
-    function goToCheckout() {
-      const tok = getToken("PAID", PRICE, "monthly");
-      router.push(`/checkout?plan=${tok}`)
-    }
+  const router = useRouter();
+
+  function goToCheckout() {
+    const tok = getToken("PAID", PRICE, "monthly");
+    router.push(`/checkout?plan=${tok}`);
+  }
+
   return (
     <div className="relative rounded-[1.75rem] sm:mx-12 mx-0 bg-gradient-to-r from-blue-600/40 via-blue-400/15 to-blue-600/40 p-px dark:from-blue-500/40 dark:via-blue-400/10 dark:to-blue-500/40">
       <motion.section
@@ -170,9 +180,33 @@ export default function PricingBanner() {
               flat price.
             </motion.p>
 
+            {/* Launch offer banner */}
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-col gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4 dark:border-amber-400/20 dark:bg-amber-400/[0.08]"
+            >
+              <div className="flex items-center gap-2">
+                <Gift className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                <span className="text-xs font-bold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+                  Special Launch Offer · Jul 20 – Jul 30
+                </span>
+              </div>
+              <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                Join now and get GOLD VIP & BTC VIP Indicators{" "}
+                <span className="font-semibold text-slate-900 dark:text-white">
+                  free for 2 weeks.
+                </span>
+              </p>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                Not satisfied? Your first month is fully refunded in August. No
+                risk — test everything before you decide.
+              </div>
+            </motion.div>
+
             <motion.div variants={itemVariants} className="flex flex-col gap-3">
               <button
-              onClick={goToCheckout}
+                onClick={goToCheckout}
                 type="button"
                 className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:bg-blue-700 hover:shadow-blue-600/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950 sm:w-fit"
               >
