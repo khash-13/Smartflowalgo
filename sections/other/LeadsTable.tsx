@@ -138,6 +138,9 @@ export default function LeadsTable({ initialData, initialTotal, pageSize }: Lead
     const del = await fetch(`/api/save-data?id=${id}`, {
       method: "DELETE",
     });
+    const data = await del.json()
+    console.log(data);
+    
     if (del.ok) {
       window.location.reload();
       setLoading(false);
