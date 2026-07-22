@@ -118,12 +118,13 @@ export default function FreePlanBanner() {
             variants={itemVariants}
             className="max-w-2xl text-4xl font-black leading-[0.95] tracking-tighter text-slate-900 sm:text-5xl dark:text-white"
           >
-            Free             <span className="bg-gradient-to-r from-sky-600 to-cyan-400 bg-clip-text text-transparent dark:from-sky-400 dark:to-cyan-300">
+            Get Free <span className="bg-gradient-to-r from-sky-600 to-cyan-400 bg-clip-text text-transparent dark:from-sky-400 dark:to-cyan-300">
               Indicators
-            </span> For First Week.{" "} Start in 
+            </span>.{" "} <br />
             <span className="bg-gradient-to-r from-sky-600 to-cyan-400 bg-clip-text text-transparent dark:from-sky-400 dark:to-cyan-300">
-              {" "}seconds.
+             Start
             </span>
+              {" "} in seconds.
           </motion.h2>
 
           <motion.p
@@ -173,7 +174,7 @@ export default function FreePlanBanner() {
               <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
               <span className="relative flex items-center gap-2">
                 <Send className="h-4 w-4" />
-                Join Telegram Free
+                Get Indicators
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
             </motion.button>

@@ -24,9 +24,9 @@ function Home() {
       <TickerTape />
       </div>
       <ProductShowcase />
-      <GoldIndicatorAbout />
       <FreePlanBanner />
       <PricingBanner />
+      <GoldIndicatorAbout />
       {/* <Pricing /> */}
       <Featured />
 

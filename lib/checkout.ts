@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Adjust these two regexes if you need to support non-Indian numbers or
 // TradingView's actual username rules — these are reasonable defaults.
-const MOBILE_REGEX = /^(?:\+91)?[6-9]\d{9}$/;
+const MOBILE_REGEX = /^\+?[1-9]\d{6,14}$/;
 const TRADINGVIEW_ID_REGEX = /^[a-zA-Z0-9_-]{3,30}$/;
 
 export const checkoutFormSchema = z.object({
