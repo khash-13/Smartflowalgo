@@ -16,7 +16,9 @@ function Home() {
   return (
     <div className="space-y-20 pb-20">
       {/* HERO SECTION */}
-      <Hero />
+      {/* <Hero /> */}
+      <FreePlanBanner />
+      <PricingBanner />
       <div className="">
       <LogoMarquee 
       logos={images}
@@ -24,8 +26,6 @@ function Home() {
       <TickerTape />
       </div>
       <ProductShowcase />
-      <FreePlanBanner />
-      <PricingBanner />
       <GoldIndicatorAbout />
       {/* <Pricing /> */}
       <Featured />
