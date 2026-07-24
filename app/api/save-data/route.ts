@@ -3,10 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { saveDataSchema } from "@/lib/checkout";
 import { isAuthorized, unauthorizedResponse } from "@/lib/basic-auth";
 import { Prisma } from "@/generated/prisma/client";
+import sendEmail from "@/lib/email";
+import { emailTemplate } from "@/lib/template";
 
 const SORTABLE_FIELDS = ["createdAt", "name"] as const;
 type SortableField = (typeof SORTABLE_FIELDS)[number];
-
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -21,10 +22,10 @@ export async function GET(req: NextRequest) {
   }
   if (id) {
     const data = await prisma.user.findFirst({
-      where: {id},
-      include: {payments: true}
-    })
-    return NextResponse.json({data}, {status: 200})
+      where: { id },
+      include: { payments: true },
+    });
+    return NextResponse.json({ data }, { status: 200 });
   }
 
   // Everything past this point returns full lead records — gate it.
@@ -43,10 +44,17 @@ async function checkDuplicates(params: {
 
   try {
     const [emailMatch, mobileMatch, tradingViewIdMatch] = await Promise.all([
-      email ? prisma.user.findUnique({ where: { email }, select: { id: true } }) : null,
-      mobile ? prisma.user.findUnique({ where: { mobile }, select: { id: true } }) : null,
+      email
+        ? prisma.user.findUnique({ where: { email }, select: { id: true } })
+        : null,
+      mobile
+        ? prisma.user.findUnique({ where: { mobile }, select: { id: true } })
+        : null,
       tradingViewId
-        ? prisma.user.findUnique({ where: { tradingViewId }, select: { id: true } })
+        ? prisma.user.findUnique({
+            where: { tradingViewId },
+            select: { id: true },
+          })
         : null,
     ]);
 
@@ -57,7 +65,10 @@ async function checkDuplicates(params: {
     });
   } catch (err) {
     console.error("[save-data][GET][duplicate-check] failed:", err);
-    return NextResponse.json({ error: "Something went wrong. Try again." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong. Try again." },
+      { status: 500 },
+    );
   }
 }
 
@@ -65,20 +76,25 @@ async function listLeads(searchParams: URLSearchParams) {
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
   const pageSize = Math.min(
     100,
-    Math.max(1, parseInt(searchParams.get("pageSize") ?? "10", 10) || 10)
+    Math.max(1, parseInt(searchParams.get("pageSize") ?? "10", 10) || 10),
   );
 
   const search = searchParams.get("search")?.trim() || undefined;
 
   const planTypeParam = searchParams.get("planType");
   const planType =
-    planTypeParam === "FREE" || planTypeParam === "PAID" ? planTypeParam : undefined;
+    planTypeParam === "FREE" || planTypeParam === "PAID"
+      ? planTypeParam
+      : undefined;
 
   const sortByParam = searchParams.get("sortBy");
-  const sortBy: SortableField = SORTABLE_FIELDS.includes(sortByParam as SortableField)
+  const sortBy: SortableField = SORTABLE_FIELDS.includes(
+    sortByParam as SortableField,
+  )
     ? (sortByParam as SortableField)
     : "createdAt";
-  const order: "asc" | "desc" = searchParams.get("order") === "asc" ? "asc" : "desc";
+  const order: "asc" | "desc" =
+    searchParams.get("order") === "asc" ? "asc" : "desc";
 
   // NOTE: `mode: "insensitive"` requires Postgres or MongoDB. Drop it if
   // you're on MySQL/SQLite — their default collations are usually already
@@ -88,7 +104,7 @@ async function listLeads(searchParams: URLSearchParams) {
     ...(search
       ? {
           OR: [
-            {userType: "CLIENT"},
+            { userType: "CLIENT" },
             { name: { contains: search, mode: "insensitive" } },
             { email: { contains: search, mode: "insensitive" } },
             { mobile: { contains: search, mode: "insensitive" } },
@@ -120,10 +136,12 @@ async function listLeads(searchParams: URLSearchParams) {
     });
   } catch (err) {
     console.error("[save-data][GET][list] failed:", err);
-    return NextResponse.json({ error: "Something went wrong. Try again." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong. Try again." },
+      { status: 500 },
+    );
   }
 }
-
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -136,8 +154,11 @@ export async function POST(req: NextRequest) {
   const parsed = saveDataSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Validation failed", issues: parsed.error.flatten().fieldErrors },
-      { status: 400 }
+      {
+        error: "Validation failed",
+        issues: parsed.error.flatten().fieldErrors,
+      },
+      { status: 400 },
     );
   }
 
@@ -153,46 +174,73 @@ export async function POST(req: NextRequest) {
       const conflicts: string[] = [];
       if (existing.email === email) conflicts.push("email");
       if (existing.mobile === mobile) conflicts.push("mobile");
-      if (existing.tradingViewId === tradingViewId) conflicts.push("tradingViewId");
+      if (existing.tradingViewId === tradingViewId)
+        conflicts.push("tradingViewId");
 
       return NextResponse.json(
         { error: "One or more fields are already registered", conflicts },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     const lead = await prisma.user.create({
       data: { name, tradingViewId, mobile, email, planType, version },
-      select: { id: true },
+      select: { id: true, srn: true, createdAt: true },
     });
 
+    const html = emailTemplate
+      .replaceAll("{{name}}", name)
+      .replaceAll("{{email}}", email)
+      .replaceAll("{{tradingViewId}}", tradingViewId)
+      .replaceAll(
+        "{{requestDate}}",
+        lead.createdAt.toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        }),
+      )
+      .replaceAll("{{status}}", "Recevied")
+      .replaceAll("{{srn}}", String(lead.srn))
+      .replaceAll("{{telegramLink}}", "https://t.me/smartflowtrading")
+      .replaceAll("{{year}}", new Date().getFullYear().toString());
+
+    await sendEmail(email, "✅ We've Received Your Indicator Access Request | SmartFlowAlgo", html);
     return NextResponse.json({ success: true, id: lead.id }, { status: 201 });
   } catch (err) {
     // Race-condition fallback: two requests slipped past the findFirst check
     // at the same time and the DB's unique constraint caught it instead.
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002"
+    ) {
       const target = (err.meta?.target as string[] | undefined) ?? [];
       return NextResponse.json(
-        { error: "One or more fields are already registered", conflicts: target },
-        { status: 409 }
+        {
+          error: "One or more fields are already registered",
+          conflicts: target,
+        },
+        { status: 409 },
       );
     }
 
     console.error("[save-data][POST] failed to save lead:", err);
-    return NextResponse.json({ error: "Something went wrong. Try again." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong. Try again." },
+      { status: 500 },
+    );
   }
 }
 
-
 export async function DELETE(req: NextRequest) {
-  const search = req.nextUrl.searchParams
-  const id = search.get("id")
+  const search = req.nextUrl.searchParams;
+  const id = search.get("id");
 
   if (!id) {
-    return NextResponse.json({error: "id not provided"}, {status: 400})
+    return NextResponse.json({ error: "id not provided" }, { status: 400 });
   }
   await prisma.user.delete({
-    where: {id}
-  })
-  return NextResponse.json({data: "success"}, {status: 200})
+    where: { id },
+  });
+  return NextResponse.json({ data: "success" }, { status: 200 });
 }
