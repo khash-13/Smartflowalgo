@@ -18,38 +18,38 @@ export default function AdminLeadsPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchLeads = async () => {
-      try {
-        const res = await fetch("/api/get-leads?page=1", {
-          cache: "no-store",
-        });
+  // useEffect(() => {
+  //   const fetchLeads = async () => {
+  //     try {
+  //       const res = await fetch("/api/get-leads?page=1", {
+  //         cache: "no-store",
+  //       });
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch leads");
-        }
+  //       if (!res.ok) {
+  //         throw new Error("Failed to fetch leads");
+  //       }
 
-        const data = await res.json();
+  //       const data = await res.json();
 
-        setLeads(data.data);
-        setTotal(data.pagination.total);
-      } catch (error) {
-        console.error("Error fetching leads:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       setLeads(data.data);
+  //       setTotal(data.pagination.total);
+  //     } catch (error) {
+  //       console.error("Error fetching leads:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchLeads();
-  }, []);
+  //   fetchLeads();
+  // }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-10">
-        <p className="text-slate-400">Loading leads...</p>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center py-10">
+  //       <p className="text-slate-400">Loading leads...</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div>
@@ -60,9 +60,9 @@ export default function AdminLeadsPage() {
 
       <div className="mt-6">
         <LeadsTable
-          initialData={leads}
-          initialTotal={total}
-          pageSize={PAGE_SIZE}
+          initialData={[]}
+          initialTotal={10}
+          pageSize={1}
         />
       </div>
     </div>

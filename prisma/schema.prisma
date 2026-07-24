@@ -34,11 +34,13 @@ enum UserType {
 
 model User {
   id            String    @id @default(nanoid())
+  srn           Int       @unique @default(autoincrement())
   name          String
   tradingViewId String?   @unique
   mobile        String    @unique
   email         String    @unique
   planType      AccType?
+  version       String?   @default("Latest")
   userType      UserType  @default(CLIENT)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

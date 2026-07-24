@@ -22,7 +22,8 @@ export const checkoutFormSchema = z.object({
     .trim()
     .regex(MOBILE_REGEX, "Enter a valid 10-digit mobile number"),
   email: z.string().trim().toLowerCase().email("Enter a valid email address"),
-  promoterId: z.string().optional().nullable()
+  promoterId: z.string().optional().nullable(),
+  version: z.string().optional()
 });
 
 export type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;

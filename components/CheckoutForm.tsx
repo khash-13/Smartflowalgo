@@ -18,6 +18,43 @@ import {
   type CheckoutFormValues,
   type DuplicateField,
 } from "@/lib/checkout";
+import CustomSelect from "./Custom-select";
+
+import entry from "@/assets/entry.jpeg"
+import v1 from "@/assets/entry.jpeg"
+import v2 from "@/assets/entry.jpeg"
+import v2_8 from "@/assets/entry.jpeg"
+import v3 from "@/assets/entry.jpeg"
+import v7 from "@/assets/entry.jpeg"
+
+
+
+  const versionOptions = [
+  {
+    name: "SmartflowAlgo AK PRO VIP V7.0 Final",
+    image: v7.src,
+  },
+  {
+    name: "SmartflowAlgo AK PRO VIP V3.0",
+    image: v3.src,
+  },
+  {
+    name: " AK PRO VIP V2.8 SL TP Options",
+    image: v2_8.src,
+  },
+  {
+    name: "SmartflowAlgo AK PRO VIP V2.7",
+    image: v2.src,
+  },
+    {
+    name: "SmartflowAlgo Gold Zones V1.2",
+    image: v1.src,
+  },
+    {
+    name: "SmartflowAlgo Reversal Entry Zones",
+    image: entry.src,
+  },
+];
 
 interface CheckoutFormProps {
   plan: PlanPayload;
@@ -32,6 +69,7 @@ const EMPTY_FORM: CheckoutFormValues = {
   mobile: "",
   email: "",
   promoterId: "",
+  version: versionOptions[0].name
 };
 
 const FIELD_LABELS: Record<FieldName, string> = {
@@ -40,6 +78,7 @@ const FIELD_LABELS: Record<FieldName, string> = {
   mobile: "Mobile number",
   email: "Email address",
   promoterId: "Referral code (optional)",
+  version: "Version",
 };
 
 // TODO: point these at your real destinations before shipping.
@@ -290,6 +329,8 @@ export default function CheckoutForm({ plan }: CheckoutFormProps) {
     }
   }
 
+
+
   useEffect(() => {
     if (discount?.discount) {
       const newAmount = Number((amount * (1 - discount.discount / 100)).toFixed(2));
@@ -327,7 +368,7 @@ export default function CheckoutForm({ plan }: CheckoutFormProps) {
           {isPaid && typeof plan.price === "number" && (
             <p className="mt-2 flex items-baseline gap-1 text-white">
               <span className="text-3xl font-bold">
-                ₹{amount}
+                ${amount}
               </span>
               <span className={`text-sm text-slate-400`}>
               <span className="line-through font-medium text-lg">{"  "}{discount?.discount ? "₹" + plan.price.toLocaleString("en-IN") : ""} </span>/ {plan.billingCycle === "yearly" ? "year" : "month"}
@@ -467,7 +508,32 @@ export default function CheckoutForm({ plan }: CheckoutFormProps) {
               error={errors.email}
               placeholder="you@example.com"
               autoComplete="email"
-            />
+            />            
+            
+<div className="space-y-2">
+<div className="space-y-2">
+  <label className="text-sm font-medium">
+    {FIELD_LABELS.version}
+  </label>
+
+  <CustomSelect
+    value={form.version as string}
+    options={versionOptions}
+    placeholder="Select a version"
+    error={errors.version}
+    onChange={(value) => updateField("version", value)}
+  />
+</div>
+  {errors.version && (
+    <p className="text-sm text-destructive">
+      {errors.version}
+    </p>
+  )}
+</div>
+
+
+
+
             {isPaid && (
               <Field
                 label={FIELD_LABELS.promoterId}

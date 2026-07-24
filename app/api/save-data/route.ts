@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   const email = searchParams.get("email")?.trim().toLowerCase() || undefined;
   const mobile = searchParams.get("mobile")?.trim() || undefined;
   const tradingViewId = searchParams.get("tradingViewId")?.trim() || undefined;
-  
+
   const id = searchParams.get("id")?.trim() || undefined;
 
   if (email || mobile || tradingViewId) {
@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { name, tradingViewId, mobile, email, planType } = parsed.data;
+  const { name, tradingViewId, mobile, email, planType, version } = parsed.data;
 
   try {
     const existing = await prisma.user.findFirst({
@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
     }
 
     const lead = await prisma.user.create({
-      data: { name, tradingViewId, mobile, email, planType },
+      data: { name, tradingViewId, mobile, email, planType, version },
       select: { id: true },
     });
 

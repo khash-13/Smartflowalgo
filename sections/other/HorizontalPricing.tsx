@@ -181,7 +181,7 @@ export default function PricingBanner() {
             </motion.p>
 
             {/* Launch offer banner */}
-            <motion.div
+            {/* <motion.div
               variants={itemVariants}
               className="flex flex-col gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4 dark:border-amber-400/20 dark:bg-amber-400/[0.08]"
             >
@@ -202,7 +202,7 @@ export default function PricingBanner() {
                 Not satisfied? Your first month is fully refunded in August. No
                 risk — test everything before you decide.
               </div>
-            </motion.div>
+            </motion.div> */}
 
             <motion.div variants={itemVariants} className="flex flex-col gap-3">
               <button

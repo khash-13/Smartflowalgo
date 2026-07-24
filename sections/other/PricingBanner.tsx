@@ -14,12 +14,11 @@ import {
   Sparkles,
   Users,
   Gift,
+  IndianRupee,
 } from "lucide-react";
 import { getToken } from "@/lib/plan-token";
 import { useRouter } from "next/navigation";
 
-// TODO: replace with your real Telegram invite link
-const TELEGRAM_URL = "#";
 
 const TOTAL_SPOTS = 200;
 const SPOTS_CLAIMED = 162; // update manually or wire to real data
@@ -27,6 +26,7 @@ const MEMBER_COUNT = 12400;
 
 const FEATURES = [
   { icon: Send, title: "Telegram Access", desc: "Straight into the free group" },
+  {icon: IndianRupee, title: "Indian Market", desc: "Built for Indian market"},
   { icon: Gem, title: "Gold Ideas", desc: "XAU/USD levels, daily" },
   { icon: Bitcoin, title: "BTC Ideas", desc: "Bitcoin structure & zones" },
   { icon: Coins, title: "Forex Ideas", desc: "Major pairs, called early" },
@@ -136,7 +136,7 @@ export default function FreePlanBanner() {
           </motion.p>
 
           {/* Launch offer banner (scaled down) */}
-          <motion.div
+          {/* <motion.div
             variants={itemVariants}
             className="flex max-w-md items-center gap-2.5 rounded-full border border-amber-500/30 bg-amber-500/[0.06] px-4 py-2 dark:border-amber-400/20 dark:bg-amber-400/[0.08]"
           >
@@ -147,7 +147,7 @@ export default function FreePlanBanner() {
               </span>{" "}
               upgrade later and get VIP Indicators free for 2 weeks
             </span>
-          </motion.div>
+          </motion.div> */}
 
           {/* price + CTA, inline row instead of stacked column */}
           <motion.div
@@ -219,7 +219,7 @@ export default function FreePlanBanner() {
           })}
 
           {/* filler card completing the grid rhythm, doubles as a soft upsell nudge */}
-          <motion.div
+          {/* <motion.div
             variants={cardVariants}
             className="flex flex-col items-start justify-between gap-2.5 rounded-2xl border border-sky-600/20 bg-sky-600/[0.05] p-4 dark:border-sky-400/20 dark:bg-sky-400/[0.06]"
           >
@@ -234,7 +234,7 @@ export default function FreePlanBanner() {
                 Full signals & courses below
               </span>
             </div>
-          </motion.div>
+          </motion.div> */}
         </motion.div>
 
         {/* ============= FOOTER STRIP: scarcity + social proof ============= */}

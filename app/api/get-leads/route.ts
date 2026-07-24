@@ -16,7 +16,7 @@ export async function GET(request: Request) {
           userType: "CLIENT",
         },
         orderBy: {
-          createdAt: "desc",
+          srn: "asc",
         },
         skip,
         take: PAGE_SIZE,

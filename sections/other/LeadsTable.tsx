@@ -16,6 +16,7 @@ import PaymentsModal from "./PaymentModel";
 
 type AccType = "FREE" | "PAID" 
 export interface Lead {
+  srn: number;
   id: string;
   name: string;
   tradingViewId: string | null;
@@ -23,6 +24,7 @@ export interface Lead {
   email: string;
   planType?: AccType;
   createdAt: string; // ISO string
+  version?: string
 }
 
 interface Pagination {
@@ -81,12 +83,6 @@ export default function LeadsTable({ initialData, initialTotal, pageSize }: Lead
   }, [debouncedSearch, planFilter, sortBy, order]);
 
   useEffect(() => {
-    // Skip the very first run — the server already gave us page 1 with
-    // default filters, no need to refetch it immediately on mount.
-    if (isFirstRun.current) {
-      isFirstRun.current = false;
-      return;
-    }
     fetchLeads();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, debouncedSearch, planFilter, sortBy, order]);
@@ -98,13 +94,11 @@ export default function LeadsTable({ initialData, initialTotal, pageSize }: Lead
       const params = new URLSearchParams({
         page: String(page),
         pageSize: String(pageSize),
-        sortBy,
-        order,
       });
       if (debouncedSearch) params.set("search", debouncedSearch);
       if (planFilter !== "ALL") params.set("planType", planFilter);
 
-      const res = await fetch(`/api/save-data?${params.toString()}`);
+      const res = await fetch(`/api/get-leads?${params.toString()}`);
       const data = await res.json();
 
       if (!res.ok) {
@@ -200,8 +194,10 @@ export default function LeadsTable({ initialData, initialTotal, pageSize }: Lead
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
             <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-slate-400">
+              <th className="px-4 py-3 font-medium">S No.</th>
               <SortableHeader label="Name" field="name" sortBy={sortBy} order={order} onSort={toggleSort} />
               <th className="px-4 py-3 font-medium">TradingView ID</th>
+              <th className="px-4 py-3 font-medium">Version</th>
               <th className="px-4 py-3 font-medium">Mobile</th>
               <th className="px-4 py-3 font-medium">Email</th>
               <th className="px-4 py-3 font-medium">Plan</th>
@@ -218,8 +214,10 @@ export default function LeadsTable({ initialData, initialTotal, pageSize }: Lead
           <tbody className="divide-y divide-white/5">
             {leads.map((lead) => (
               <tr key={lead.id} className="text-slate-200 hover:bg-white/[0.02]">
+                <td className="px-4 py-3 text-slate-400">{lead.srn}</td>
                 <td className="px-4 py-3 font-medium text-white">{lead.name}</td>
                 <td className="px-4 py-3 text-slate-400">{lead.tradingViewId}</td>
+                <td className="px-4 py-3 text-slate-400">{lead.version}</td>
                 <td className="px-4 py-3 text-slate-400">{lead.mobile}</td>
                 <td className="px-4 py-3 text-slate-400">{lead.email}</td>
                 <td className="px-4 py-3">
